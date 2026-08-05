@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xgame — Тест авторизации</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0f;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        .card {
+            background: #12121a;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 16px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.3s;
+            margin: 4px;
+        }
+        .btn-primary {
+            background: #6c5ce7;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #7d6ff0;
+        }
+        .btn-danger {
+            background: transparent;
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+        .btn-danger:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        .btn-success {
+            background: #51cf66;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #69db7c;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .auth-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .auth-status.logged {
+            background: rgba(81, 207, 102, 0.2);
+            color: #51cf66;
+            border: 1px solid rgba(81, 207, 102, 0.2);
+        }
+        .auth-status.guest {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.1);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .user-info .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .user-info .name {
+            font-weight: 600;
+        }
+        .user-info .username {
+            font-size: 12px;
+            color: #8888aa;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: #1a1a24;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #fff;
+            font-size: 13px;
+            max-width: 90%;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+            z-index: 999;
+        }
+        .toast.error {
+            border-color: #ff6b6b;
+        }
+        .toast.success {
+            border-color: #51cf66;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        .hidden {
+            display: none !important;
+        }
+        .flex {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .text-muted {
+            color: #8888aa;
+            font-size: 13px;
+        }
+        .divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin: 12px 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(108, 92, 231, 0.15);
+            color: #6c5ce7;
+            border: 1px solid rgba(108, 92, 231, 0.15);
+        }
+        h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #8888aa;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    ТЕСТОВОЕ ПРИЛОЖЕНИЕ
+    ============================================================ -->
+
+    <div class="card">
+        <h2>🧪 Xgame — Тест авторизации</h2>
+        <p class="text-muted" style="margin-bottom:12px;">Проверка: что доступно без входа, а что требует авторизации</p>
+
+        <!-- СТАТУС -->
+        <div class="user-info">
+            <div class="avatar" id="testAvatar">👤</div>
+            <div>
+                <div class="name" id="testName">Гость</div>
+                <div class="username" id="testUsername">не авторизован</div>
+            </div>
+            <div style="margin-left:auto;">
+                <span class="auth-status guest" id="testStatus">🔓 Гость</span>
+            </div>
+        </div>
+
+        <!-- КНОПКИ ВХОДА/ВЫХОДА -->
+        <div class="flex">
+            <button class="btn btn-primary" id="testLoginBtn">🚀 Войти (тест)</button>
+            <button class="btn btn-danger hidden" id="testLogoutBtn">🚪 Выйти</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    ПУБЛИЧНЫЙ РАЗДЕЛ (БЕЗ ВХОДА)
+    ============================================================ -->
+
+    <div class="card">
+        <h3>📖 Публичный раздел</h3>
+        <p class="text-muted" style="margin-bottom:12px;">Доступно всем, даже без входа</p>
+
+        <div class="flex">
+            <button class="btn btn-success" id="testViewPosts">👁️ Просмотр постов</button>
+            <button class="btn btn-success" id="testViewIdeas">💡 Просмотр идей</button>
+            <button class="btn btn-success" id="testSandbox">▶️ Песочница</button>
+        </div>
+
+        <div id="testPublicResult" class="mt-8" style="padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;min-height:40px;color:#8888aa;font-size:13px;">
+            Нажми на кнопку, чтобы увидеть результат
+        </div>
+    </div>
+
+    <!-- ============================================================
+    ЗАЩИЩЁННЫЙ РАЗДЕЛ (ТРЕБУЕТ ВХОД)
+    ============================================================ -->
+
+    <div class="card">
+        <h3>🔒 Защищённый раздел</h3>
+        <p class="text-muted" style="margin-bottom:12px;">Требует авторизации</p>
+
+        <div class="flex">
+            <button class="btn btn-primary" id="testCreatePost">✏️ Создать пост</button>
+            <button class="btn btn-primary" id="testCreateIdea">💡 Создать идею</button>
+            <button class="btn btn-primary" id="testComment">💬 Написать комментарий</button>
+            <button class="btn btn-primary" id="testLike">❤️ Поставить лайк</button>
+            <button class="btn btn-primary" id="testProfile">👤 Профиль</button>
+        </div>
+
+        <div id="testProtectedResult" class="mt-8" style="padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;min-height:40px;color:#8888aa;font-size:13px;">
+            Нажми на кнопку, чтобы увидеть результат
+        </div>
+    </div>
+
+    <!-- ============================================================
+    ИНФОРМАЦИЯ О ДОСТУПЕ
+    ============================================================ -->
+
+    <div class="card">
+        <h3>📋 Правила доступа</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+            <div style="color:#51cf66;">✅ Просмотр постов</div>
+            <div style="color:#ff6b6b;">🔒 Создание постов</div>
+            <div style="color:#51cf66;">✅ Просмотр идей</div>
+            <div style="color:#ff6b6b;">🔒 Создание идей</div>
+            <div style="color:#51cf66;">✅ Песочница кода</div>
+            <div style="color:#ff6b6b;">🔒 Комментарии</div>
+            <div style="color:#51cf66;">✅ Чтение комментариев</div>
+            <div style="color:#ff6b6b;">🔒 Лайки/реакции</div>
+            <div style="color:#51cf66;">✅ Поиск</div>
+            <div style="color:#ff6b6b;">🔒 Профиль</div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;">
+            <span class="badge">🟢 Публичное</span>
+            <span class="badge" style="background:rgba(255,107,107,0.15);color:#ff6b6b;border-color:rgba(255,107,107,0.15);">🔴 Требует вход</span>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    СКРИПТ
+    ============================================================ -->
+
+    <script>
+        // ============================================================
+        // СОСТОЯНИЕ
+        // ============================================================
+
+        let currentUser = null;
+
+        // ============================================================
+        // УТИЛИТЫ
+        // ============================================================
+
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        function requireAuth() {
+            if (!currentUser) {
+                showToast('⚠️ Войдите через XAMChat, чтобы выполнить это действие', 'error');
+                // В реальном приложении здесь показывается экран входа
+                return false;
+            }
+            return true;
+        }
+
+        function updateUI() {
+            const avatar = document.getElementById('testAvatar');
+            const name = document.getElementById('testName');
+            const username = document.getElementById('testUsername');
+            const status = document.getElementById('testStatus');
+            const loginBtn = document.getElementById('testLoginBtn');
+            const logoutBtn = document.getElementById('testLogoutBtn');
+
+            if (currentUser) {
+                avatar.textContent = currentUser.name?.charAt(0) || '👤';
+                name.textContent = currentUser.name || currentUser.username;
+                username.textContent = '@' + currentUser.username;
+                status.textContent = '🔒 ' + currentUser.username;
+                status.className = 'auth-status logged';
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+            } else {
+                avatar.textContent = '👤';
+                name.textContent = 'Гость';
+                username.textContent = 'не авторизован';
+                status.textContent = '🔓 Гость';
+                status.className = 'auth-status guest';
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        // ============================================================
+        // ТЕСТОВЫЙ ВХОД/ВЫХОД
+        // ============================================================
+
+        document.getElementById('testLoginBtn').addEventListener('click', function() {
+            // Имитация входа
+            currentUser = {
+                id: 'test_user',
+                username: 'testuser',
+                name: 'Тестовый Пользователь',
+                avatar_url: ''
+            };
+            updateUI();
+            showToast('✅ Добро пожаловать, ' + currentUser.name + '!', 'success');
+            document.getElementById('testPublicResult').textContent = '✅ Вы вошли! Теперь доступны защищённые функции.';
+            document.getElementById('testProtectedResult').textContent =
+            '🔓 Защищённые функции теперь доступны. Попробуй нажать на любую кнопку.';
+        });
+
+        document.getElementById('testLogoutBtn').addEventListener('click', function() {
+            currentUser = null;
+            updateUI();
+            showToast('👋 Вы вышли', 'info');
+            document.getElementById('testPublicResult').textContent = '👋 Вы вышли. Публичные функции всё ещё доступны.';
+            document.getElementById('testProtectedResult').textContent = '🔒 Защищённые функции снова заблокированы.';
+        });
+
+        // ============================================================
+        // ПУБЛИЧНЫЕ ФУНКЦИИ (БЕЗ ВХОДА)
+        // ============================================================
+
+        document.getElementById('testViewPosts').addEventListener('click', function() {
+            document.getElementById('testPublicResult').innerHTML = `
+                <div style="color:#51cf66;">✅ Просмотр постов доступен всем!</div>
+                <div style="color:#8888aa;font-size:12px;margin-top:4px;">
+                    📝 Пост 1: Привет мир!<br>
+                    📝 Пост 2: Второй пост<br>
+                    📝 Пост 3: Ещё один пост
+                </div>
+            `;
+        });
+
+        document.getElementById('testViewIdeas').addEventListener('click', function() {
+            document.getElementById('testPublicResult').innerHTML = `
+                <div style="color:#51cf66;">✅ Просмотр идей доступен всем!</div>
+                <div style="color:#8888aa;font-size:12px;margin-top:4px;">
+                    💡 Идея 1: Новый проект<br>
+                    💡 Идея 2: Улучшение дизайна<br>
+                    💡 Идея 3: Интеграция с API
+                </div>
+            `;
+        });
+
+        document.getElementById('testSandbox').addEventListener('click', function() {
+            document.getElementById('testPublicResult').innerHTML = `
+                <div style="color:#51cf66;">✅ Песочница кода доступна всем!</div>
+                <div style="color:#8888aa;font-size:12px;margin-top:4px;">
+                    <pre style="background:#0d0d0d;padding:10px;border-radius:8px;margin-top:8px;font-size:12px;overflow:auto;">
+&lt;h1&gt;Привет, мир!&lt;/h1&gt;
+&lt;p&gt;Этот код может запустить любой пользователь&lt;/p&gt;
+&lt;style&gt;body{background:#222;color:#fff;}&lt;/style&gt;
+                    </pre>
+                    <button class="btn btn-primary" style="margin-top:8px;padding:4px 12px;font-size:11px;" onclick="event.stopPropagation(); showToast('▶️ Код запущен в песочнице!','info');">▶️ Запустить</button>
+                </div>
+            `;
+        });
+
+        // ============================================================
+        // ЗАЩИЩЁННЫЕ ФУНКЦИИ (ТРЕБУЮТ ВХОД)
+        // ============================================================
+
+        document.getElementById('testCreatePost').addEventListener('click', function() {
+            if (!requireAuth()) return;
+            document.getElementById('testProtectedResult').innerHTML = `
+                <div style="color:#51cf66;">✅ Пост создан!</div>
+                <div style="color:#8888aa;font-size:12px;margin-top:4px;">
+                    📝 "Мой новый пост" — опубликован от имени ${currentUser.name}
+                </div>
+            `;
+            showToast('✅ Пост опубликован!', 'success');
+        });
+
+        document.getElementById('testCreateIdea').addEventListener('click', function() {
+            if (!requireAuth()) return;
+            document.getElementById('testProtectedResult').innerHTML = `
+                <div style="color:#51cf66;">✅ Идея создана!</div>
+                <div style="color:#8888aa;font-size:12px;margin-top:4px;">
+                    💡 "Новая идея" — добавлена от имени ${currentUser.name}
+                </div>
+            `;
+            showToast('✅ Идея создана!', 'success');
+        });
+
+        document.getElementById('testComment').addEventListener('click', function() {
+            if (!requireAuth()) return;
+            document.getElementById('testProtectedResult').innerHTML = `
+                <div style="color:#51cf66;">✅ Комментарий добавлен!</div>
+                <div style="color:#8888aa;font-size:12px;margin-top:4px;">
+                    💬 "${currentUser.name}: Отличный пост! 👏"
+                </div>
+            `;
+            showToast('✅ Комментарий добавлен!', 'success');
+        });
+
+        document.getElementById('testLike').addEventListener('click', function() {
+            if (!requireAuth()) return;
+            document.getElementById('testProtectedResult').innerHTML = `
+                <div style="color:#ff6b6b;">❤️ Лайк поставлен!</div>
+                <div style="color:#8888aa;font-size:12px;margin-top:4px;">
+                    👍 ${currentUser.name} оценил этот пост
+                </div>
+            `;
+            showToast('❤️ Лайк поставлен!', 'success');
+        });
+
+        document.getElementById('testProfile').addEventListener('click', function() {
+            if (!requireAuth()) return;
+            document.getElementById('testProtectedResult').innerHTML = `
+                <div style="color:#51cf66;">👤 Профиль пользователя</div>
+                <div style="color:#8888aa;font-size:13px;margin-top:8px;line-height:1.8;">
+                    <strong>Имя:</strong> ${currentUser.name}<br>
+                    <strong>Username:</strong> @${currentUser.username}<br>
+                    <strong>ID:</strong> ${currentUser.id}<br>
+                    <strong>Постов:</strong> 3<br>
+                    <strong>Идей:</strong> 2<br>
+                    <strong>Лайков:</strong> 15
+                </div>
+            `;
+            showToast('👤 Профиль загружен', 'info');
+        });
+
+        // ============================================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
+
+        updateUI();
+
+        console.log('🚀 Тест частичной авторизации запущен');
+        console.log('📊 Текущий пользователь:', currentUser || 'Гость');
+        console.log('📋 Публичные функции доступны всем');
+        console.log('🔒 Защищённые функции требуют входа');
+    </script>
+
+</body>
+</html>
