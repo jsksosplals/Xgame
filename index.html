@@ -1,942 +1,2637 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Xgame</title>
-  <style>
-    /* ============================================================
-       ВСЕ СТИЛИ
-       ============================================================ */
-    *{margin:0;padding:0;box-sizing:border-box;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-    :root{--bg:#0a0a0f;--card:#12121a;--border:rgba(255,255,255,0.06);--text:#fff;--muted:#8888aa;--accent:#6c5ce7;--danger:#ff6b6b;--success:#51cf66;--radius:20px}
-    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;padding:16px;max-width:600px;margin:0 auto;min-height:100vh;overflow-x:hidden}
-    #auth-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);display:flex;justify-content:center;align-items:center;z-index:200;padding:20px}
-    .auth-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px 28px;max-width:360px;width:100%;text-align:center}
-    .auth-card .logo{display:flex;justify-content:center;align-items:center;gap:4px;margin-bottom:12px}
-    .auth-card .logo-x{font-size:32px;font-weight:900;background:linear-gradient(135deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .auth-card .logo-text{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:2px}
-    .auth-card h3{font-size:20px;margin-bottom:4px}
-    .auth-card p{color:var(--muted);font-size:13px;margin-bottom:24px}
-    .auth-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#6c5ce7,#7d6ff0);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;text-align:center;transition:.3s;font-family:inherit;box-shadow:0 4px 16px rgba(108,92,231,0.3);cursor:pointer}
-    .auth-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(108,92,231,0.4);background:linear-gradient(135deg,#7d6ff0,#8d7ff5)}
-    .auth-error{color:var(--danger);font-size:12px;margin-top:12px;display:none}
-    .header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:24px;border:1px solid var(--border);margin-bottom:16px}
-    .logo{display:flex;align-items:center;gap:4px}
-    .logo-x{font-size:32px;font-weight:900;background:linear-gradient(135deg,#6c5ce7,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .logo-text{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:2px}
-    .avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:14px;color:var(--muted)}
-    .avatar img{width:100%;height:100%;object-fit:cover}
-    .nav{display:flex;gap:4px;background:rgba(255,255,255,0.03);border-radius:16px;padding:4px;border:1px solid var(--border);margin-bottom:16px}
-    .nav button{flex:1;padding:10px 8px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:500;border-radius:12px;cursor:pointer;font-family:inherit;transition:.3s}
-    .nav button:hover{color:var(--text);background:rgba(255,255,255,0.03)}
-    .nav button.active{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(108,92,231,0.3)}
-    .page{display:none;animation:fadeIn .3s ease}
-    .page.active{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .search{display:flex;gap:8px;margin-bottom:16px;background:rgba(255,255,255,0.03);border-radius:16px;padding:6px;border:1px solid var(--border)}
-    .search input{flex:1;background:transparent;border:none;padding:8px 12px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
-    .search input::placeholder{color:var(--muted)}
-    .search button{background:var(--accent);border:none;padding:8px 16px;border-radius:10px;color:#fff;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit}
-    .grid{display:grid;gap:12px}
-    .post-card{background:var(--card);border-radius:var(--radius);padding:20px;border:1px solid var(--border);margin-bottom:20px}
-    .post-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .post-author{display:flex;align-items:center;gap:10px}
-    .post-author img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--border);pointer-events:none}
-    .post-author .name{font-weight:600;font-size:14px}
-    .post-author .username{font-size:12px;color:var(--muted)}
-    .post-date{font-size:11px;color:var(--muted)}
-    .post-title{font-size:22px;font-weight:700;margin-bottom:8px;line-height:1.3}
-    .post-text{font-size:15px;color:#ccccdd;line-height:1.7;margin-bottom:14px;white-space:pre-wrap}
-    .post-image{width:100%;border-radius:12px;margin-bottom:14px;max-height:400px;object-fit:cover}
-    .reactions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px}
-    .reaction-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:30px;padding:6px 14px 6px 10px;font-size:13px;color:var(--muted);cursor:pointer;transition:.2s;font-family:inherit;-webkit-tap-highlight-color:transparent}
-    .reaction-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.12)}
-    .reaction-btn:active{transform:scale(.95)}
-    .reaction-btn .emoji{font-size:18px;line-height:1;pointer-events:none}
-    .reaction-btn .count{font-size:12px;font-weight:600;min-width:8px;pointer-events:none}
-    .reaction-btn.active{background:rgba(108,92,231,0.15);border-color:var(--accent);color:var(--text)}
-    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-    .reaction-btn.shake{animation:shake .3s ease;border-color:var(--danger)!important}
-    .reaction-limit-text{font-size:11px;color:var(--muted);margin-left:auto;padding:4px 8px;background:rgba(255,255,255,0.02);border-radius:12px}
-    .post-stats{display:flex;gap:16px;align-items:center;padding-bottom:12px;font-size:13px;color:var(--muted)}
-    .post-stats .views{display:flex;align-items:center;gap:4px}
-    .post-stats .views svg{width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-    .comment-button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;margin-top:4px;-webkit-tap-highlight-color:transparent}
-    .comment-button:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12)}
-    .comment-button:active{transform:scale(.98)}
-    .comment-button .badge{background:var(--accent);color:#fff;border-radius:30px;padding:2px 12px;font-size:13px;font-weight:700;min-width:28px;text-align:center}
-    .comments-section{margin-top:16px;display:none}
-    .comments-section.open{display:block;animation:fadeIn .3s ease}
-    .comments-title{font-size:16px;font-weight:600;margin-bottom:12px}
-    .comment-form{background:rgba(255,255,255,0.02);border-radius:14px;padding:12px;border:1px solid var(--border);margin-bottom:16px}
-    .comment-form textarea{width:100%;background:transparent;border:none;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;min-height:44px;outline:none;padding:4px 0;user-select:text;-webkit-user-select:text}
-    .comment-form textarea::placeholder{color:var(--muted)}
-    .comment-form .form-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-    .btn-submit{background:var(--accent);border:none;color:#fff;padding:6px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;-webkit-tap-highlight-color:transparent}
-    .btn-submit:hover{background:#7d6ff0}
-    .btn-submit:disabled{opacity:.5;cursor:not-allowed}
-    .comment-item{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-    .comment-item:last-child{border-bottom:none}
-    .comment-item .comment-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-    .comment-item .comment-header img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--border);pointer-events:none}
-    .comment-item .comment-header .name{font-size:13px;font-weight:600}
-    .comment-item .comment-header .username{font-size:11px;color:var(--muted)}
-    .comment-item .comment-header .date{font-size:10px;color:var(--muted);margin-left:auto}
-    .comment-item .comment-body{font-size:13px;color:#ccccdd;line-height:1.5;padding-left:36px;word-wrap:break-word;user-select:text;-webkit-user-select:text}
-    .comment-item .comment-actions{display:flex;gap:12px;padding-left:36px;margin-top:4px}
-    .comment-item .comment-actions button{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit;transition:.2s;-webkit-tap-highlight-color:transparent}
-    .comment-item .comment-actions button:hover{color:var(--text)}
-    .comment-item .comment-actions .delete{color:var(--danger);opacity:.5}
-    .comment-item .comment-actions .delete:hover{opacity:1}
-    .comment-children{margin-left:20px;padding-left:12px;border-left:2px solid rgba(255,255,255,0.06)}
-    .empty-comments{color:var(--muted);font-size:13px;text-align:center;padding:20px 0}
-    .card{background:var(--card);border-radius:var(--radius);padding:20px;border:1px solid var(--border);transition:.3s;cursor:pointer}
-    .card:hover{border-color:rgba(108,92,231,0.2);transform:translateY(-2px)}
-    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .card-author{display:flex;align-items:center;gap:8px}
-    .card-author img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
-    .card-author .user{font-size:11px;color:var(--muted);cursor:pointer}
-    .card-author .user:hover{color:var(--accent)}
-    .card-title{font-size:18px;font-weight:700;margin-bottom:8px;word-wrap:break-word;overflow-wrap:break-word;max-width:100%}
-    .card-text{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px;white-space:pre-wrap}
-    .card-actions{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
-    .card-actions button{background:transparent;border:none;color:var(--muted);padding:4px 8px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:.2s;display:flex;align-items:center;gap:4px}
-    .card-actions button:hover{background:rgba(255,255,255,0.03);color:var(--text)}
-    .card-actions .del{color:var(--danger);opacity:.5}
-    .card-actions .del:hover{opacity:1;background:rgba(255,107,107,0.1)}
-    .card-actions .run{color:var(--success);opacity:.7}
-    .card-actions .run:hover{opacity:1;background:rgba(81,207,102,0.1)}
-    .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-    .tag{padding:4px 10px;border-radius:12px;font-size:9px;background:rgba(255,255,255,0.03);color:var(--muted);border:1px solid var(--border);cursor:pointer}
-    .tag.active{background:var(--accent);color:#fff}
-    .code-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:8px;background:rgba(81,207,102,0.15);color:var(--success);border:1px solid rgba(81,207,102,0.2);margin-bottom:8px}
-    .edit-btn,.delete-btn{background:transparent;border:none;padding:4px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:.2s}
-    .edit-btn{color:var(--accent);opacity:.6}
-    .edit-btn:hover{opacity:1;background:rgba(108,92,231,0.1)}
-    .delete-btn{color:var(--danger);opacity:.5}
-    .delete-btn:hover{opacity:1;background:rgba(255,107,107,0.1)}
-    .profile-header{text-align:center;padding:20px 0}
-    .profile-avatar{width:96px;height:96px;border-radius:50%;margin:0 auto 16px;background:rgba(255,255,255,0.03);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden}
-    .profile-avatar img{width:100%;height:100%;object-fit:cover}
-    .profile-name{font-size:22px;font-weight:700}
-    .profile-user{font-size:13px;color:var(--muted);margin-top:4px}
-    .profile-stats{display:flex;justify-content:center;gap:32px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:16px 0}
-    .profile-stat{text-align:center}
-    .profile-stat .num{font-size:20px;font-weight:700;display:block}
-    .profile-stat .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-    .logout-btn{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,107,107,0.2);background:transparent;color:var(--danger);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:12px}
-    .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#a29bfe);border:none;color:#fff;font-size:28px;cursor:pointer;box-shadow:0 4px 24px rgba(108,92,231,0.4);transition:.3s;z-index:50;display:flex;align-items:center;justify-content:center}
-    .fab:hover{transform:scale(1.1) rotate(90deg)}
-    .fab.hidden{transform:scale(0)}
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);z-index:100;justify-content:center;align-items:center;padding:20px}
-    .modal.active{display:flex}
-    .modal-box{width:100%;max-width:440px;background:var(--card);border-radius:24px;padding:28px 24px;border:1px solid var(--border);max-height:90vh;overflow-y:auto}
-    .modal-box h3{font-size:20px;font-weight:700;margin-bottom:16px}
-    .modal-box input,.modal-box textarea,.modal-box select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:10px}
-    .modal-box textarea{min-height:100px;resize:vertical}
-    .modal-actions{display:flex;gap:8px;margin-top:10px}
-    .modal-btn{flex:1;padding:12px;border-radius:12px;border:none;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:.2s}
-    .modal-btn.cancel{background:rgba(255,255,255,0.03);color:var(--muted)}
-    .modal-btn.cancel:hover{background:rgba(255,255,255,0.08)}
-    .modal-btn.save{background:var(--accent);color:#fff}
-    .modal-btn.save:hover{background:#7d6ff0}
-    .sandbox-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:150;padding:20px;flex-direction:column}
-    .sandbox-overlay.active{display:flex}
-    .sandbox-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-radius:16px;border:1px solid var(--border);margin-bottom:16px}
-    .sandbox-header h3{font-size:16px;color:var(--text)}
-    .sandbox-close{background:transparent;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:4px 12px;border-radius:8px;transition:.3s}
-    .sandbox-close:hover{background:rgba(255,255,255,0.05);color:var(--text)}
-    .sandbox-frame{flex:1;background:#fff;border-radius:16px;overflow:hidden}
-    .sandbox-frame iframe{width:100%;height:100%;border:none;background:#fff}
-    .empty{text-align:center;padding:40px 20px;color:var(--muted)}
-    .empty .icon{font-size:48px;margin-bottom:12px;opacity:.3}
-    .empty h4{font-size:16px;color:var(--text-secondary);margin-bottom:4px}
-    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--text);padding:10px 24px;border-radius:14px;border:1px solid var(--border);font-size:13px;z-index:9999;max-width:90%;text-align:center;animation:fadeIn .3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.5);pointer-events:none}
-    .toast.error{border-color:var(--danger)}
-    .toast.success{border-color:var(--success)}
-    .toast.hidden{display:none}
-    @media(max-width:480px){.post-title{font-size:18px}.post-text{font-size:14px}.comment-item .comment-body{padding-left:0}.comment-item .comment-actions{padding-left:0}.comment-children{margin-left:8px;padding-left:8px}.reaction-btn{font-size:12px;padding:4px 10px 4px 8px}.reaction-btn .emoji{font-size:15px}.reaction-limit-text{font-size:9px;padding:2px 6px}.profile-stats{gap:16px}.profile-stat .num{font-size:18px}}
-    @media(min-width:768px){.grid{grid-template-columns:repeat(2,1fr)}}
-    ::-webkit-scrollbar{width:6px}
-    ::-webkit-scrollbar-track{background:var(--bg)}
-    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-    ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="description" content="Xgame — платформа для идей и проектов с встроенной песочницей кода">
+    <title>Xgame</title>
+
+    <!-- ============================================================
+    СТИЛИ
+    ============================================================ -->
+    <style>
+        /* ===== СБРОС ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --text-primary: #ffffff;
+            --text-secondary: #8888aa;
+            --text-muted: #555577;
+            --accent: #6c5ce7;
+            --accent-hover: #7d6ff0;
+            --accent-glow: rgba(108, 92, 231, 0.3);
+            --danger: #ff6b6b;
+            --success: #51cf66;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ===== СКРОЛЛБАР ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ===== УТИЛИТЫ ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== АВТОРИЗАЦИЯ ===== */
+        #auth-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            padding: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        #auth-screen.hidden {
+            display: none;
+        }
+
+        .auth-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px 28px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .auth-card .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .auth-card .logo-x {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-card .logo-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .auth-card h3 {
+            font-size: 20px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .auth-card p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .auth-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: var(--transition);
+            font-family: inherit;
+            box-shadow: 0 4px 16px var(--accent-glow);
+            cursor: pointer;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(108, 92, 231, 0.4);
+            background: linear-gradient(135deg, var(--accent-hover), #8d7ff5);
+        }
+
+        .auth-btn:active {
+            transform: translateY(0);
+        }
+
+        .auth-error {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .auth-error.visible {
+            display: block;
+        }
+
+        /* ===== ХЕДЕР ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .logo-x {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .avatar:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ===== НАВИГАЦИЯ ===== */
+        .nav {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .nav button {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .nav button:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav button.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        /* ===== СТРАНИЦЫ ===== */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== ПОИСК ===== */
+        .search {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .search:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search button {
+            background: var(--accent);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .search button:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+        }
+
+        /* ===== ГРИД ===== */
+        .grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        /* ===== КАРТОЧКА ПОСТА ===== */
+        .post-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+
+        .post-card:hover {
+            border-color: rgba(108, 92, 231, 0.2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-author img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .post-author .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .post-author .username {
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .post-author .username:hover {
+            color: var(--accent);
+        }
+
+        .post-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .post-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .post-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: var(--radius-sm);
+            margin-bottom: 14px;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        /* ===== РЕАКЦИИ ===== */
+        .reactions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 14px;
+        }
+
+        .reaction-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 4px 12px 4px 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .reaction-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .reaction-btn:active {
+            transform: scale(0.95);
+        }
+
+        .reaction-btn .emoji {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .reaction-btn .count {
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 6px;
+        }
+
+        .reaction-btn.active {
+            background: rgba(108, 92, 231, 0.15);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-6px);
+            }
+            75% {
+                transform: translateX(6px);
+            }
+        }
+
+        .reaction-btn.shake {
+            animation: shake 0.3s ease;
+            border-color: var(--danger) !important;
+        }
+
+        .reaction-limit-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: auto;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+        }
+
+        /* ===== СТАТИСТИКА ===== */
+        .post-stats {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            padding-bottom: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .post-stats .views {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .post-stats .views svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: var(--text-muted);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ===== КНОПКА КОММЕНТАРИЕВ ===== */
+        .comment-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            margin-top: 4px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .comment-button:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .comment-button:active {
+            transform: scale(0.98);
+        }
+
+        .comment-button .badge {
+            background: var(--accent);
+            color: #fff;
+            border-radius: 30px;
+            padding: 2px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* ===== КОММЕНТАРИИ ===== */
+        .comments-section {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .comments-section.open {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .comments-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .comment-form {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 44px;
+            outline: none;
+            padding: 4px 0;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .comment-form textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .comment-form .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .btn-submit {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-item .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .comment-item .comment-header img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .comment-item .comment-header .name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .comment-item .comment-header .username {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .comment-item .comment-header .date {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .comment-item .comment-body {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding-left: 36px;
+            word-wrap: break-word;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .comment-item .comment-actions {
+            display: flex;
+            gap: 12px;
+            padding-left: 36px;
+            margin-top: 4px;
+        }
+
+        .comment-item .comment-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .comment-item .comment-actions button:hover {
+            color: var(--text-primary);
+        }
+
+        .comment-item .comment-actions .delete {
+            color: var(--danger);
+            opacity: 0.5;
+        }
+
+        .comment-item .comment-actions .delete:hover {
+            opacity: 1;
+        }
+
+        .comment-children {
+            margin-left: 20px;
+            padding-left: 12px;
+            border-left: 2px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .empty-comments {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* ===== КАРТОЧКА ИДЕЙ ===== */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            border-color: rgba(108, 92, 231, 0.2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-author img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .card-author .user {
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .card-author .user:hover {
+            color: var(--accent);
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .card-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .card-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-actions button:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+        }
+
+        .card-actions .del {
+            color: var(--danger);
+            opacity: 0.5;
+        }
+
+        .card-actions .del:hover {
+            opacity: 1;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .card-actions .run {
+            color: var(--success);
+            opacity: 0.7;
+        }
+
+        .card-actions .run:hover {
+            opacity: 1;
+            background: rgba(81, 207, 102, 0.1);
+        }
+
+        .tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 9px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tag.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .tag:hover {
+            border-color: var(--accent);
+        }
+
+        .code-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 8px;
+            background: rgba(81, 207, 102, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(81, 207, 102, 0.2);
+            margin-bottom: 8px;
+        }
+
+        /* ===== КНОПКИ ДЕЙСТВИЙ ===== */
+        .edit-btn,
+        .delete-btn {
+            background: transparent;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .edit-btn {
+            color: var(--accent);
+            opacity: 0.6;
+        }
+
+        .edit-btn:hover {
+            opacity: 1;
+            background: rgba(108, 92, 231, 0.1);
+        }
+
+        .delete-btn {
+            color: var(--danger);
+            opacity: 0.5;
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        /* ===== ПРОФИЛЬ ===== */
+        .profile-header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .profile-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .profile-user {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 16px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin: 16px 0;
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat .num {
+            font-size: 20px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .profile-stat .label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            background: transparent;
+            color: var(--danger);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 12px;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        /* ===== FAB ===== */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #a29bfe);
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 24px rgba(108, 92, 231, 0.4);
+            transition: var(--transition);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .fab.hidden {
+            transform: scale(0);
+        }
+
+        /* ===== МОДАЛКИ ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 28px 24px;
+            border: 1px solid var(--border-color);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-box h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .modal-box input,
+        .modal-box textarea,
+        .modal-box select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+
+        .modal-box input:focus,
+        .modal-box textarea:focus,
+        .modal-box select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .modal-box textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .modal-btn.cancel {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .modal-btn.save {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .modal-btn.save:hover {
+            background: var(--accent-hover);
+        }
+
+        /* ===== ПЕСОЧНИЦА ===== */
+        .sandbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 150;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .sandbox-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .sandbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .sandbox-header h3 {
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .sandbox-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .sandbox-close:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .sandbox-frame {
+            flex: 1;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .sandbox-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        /* ===== ПУСТЫЕ СОСТОЯНИЯ ===== */
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .empty h4 {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 10px 24px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            z-index: 9999;
+            max-width: 90%;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+            box-shadow: var(--shadow);
+            pointer-events: none;
+        }
+
+        .toast.error {
+            border-color: var(--danger);
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        /* ===== АДАПТИВ ===== */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .post-title {
+                font-size: 18px;
+            }
+            .post-text {
+                font-size: 14px;
+            }
+            .comment-item .comment-body {
+                padding-left: 0;
+            }
+            .comment-item .comment-actions {
+                padding-left: 0;
+            }
+            .comment-children {
+                margin-left: 8px;
+                padding-left: 8px;
+            }
+            .reaction-btn {
+                font-size: 12px;
+                padding: 4px 8px 4px 6px;
+            }
+            .reaction-btn .emoji {
+                font-size: 14px;
+            }
+            .reaction-limit-text {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+            .profile-stats {
+                gap: 16px;
+            }
+            .profile-stat .num {
+                font-size: 18px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <div id="app">
-    <!-- АВТОРИЗАЦИЯ -->
-    <div id="auth-screen">
-      <div class="auth-card">
-        <div class="logo"><span class="logo-x">X</span><span class="logo-text">game</span></div>
-        <h3>Добро пожаловать</h3>
-        <p>Войдите через XAMChat чтобы пользоваться сайтом</p>
-        <button class="auth-btn" id="authBtn">🚀 Войти через XAMChat</button>
-        <div class="auth-error" id="authError">⚠️ Ошибка авторизации</div>
-      </div>
-    </div>
+    <!-- ============================================================
+    РАЗМЕТКА
+    ============================================================ -->
+    <div id="app">
 
-    <!-- ОСНОВНОЙ КОНТЕНТ -->
-    <div id="main-content" style="display:none;">
-      <header class="header">
-        <div class="logo"><span class="logo-x">X</span><span class="logo-text">game</span></div>
-        <div class="avatar" id="avatarBtn"><span id="avatarPlaceholder">👤</span></div>
-      </header>
-
-      <nav class="nav">
-        <button class="active" data-page="ideas">Идеи</button>
-        <button data-page="posts">Посты</button>
-        <button data-page="profile">Профиль</button>
-        <button data-page="about">О нас</button>
-      </nav>
-
-      <div class="page active" id="page-ideas">
-        <div class="search">
-          <input id="searchInput" placeholder="Поиск проектов...">
-          <button id="searchBtn">Найти</button>
+        <!-- ===== АВТОРИЗАЦИЯ ===== -->
+        <div id="auth-screen">
+            <div class="auth-card">
+                <div class="logo">
+                    <span class="logo-x">X</span>
+                    <span class="logo-text">game</span>
+                </div>
+                <h3>Добро пожаловать</h3>
+                <p>Войдите через XAMChat чтобы пользоваться сайтом</p>
+                <button class="auth-btn" id="authBtn">🚀 Войти через XAMChat</button>
+                <div class="auth-error" id="authError">⚠️ Ошибка авторизации</div>
+            </div>
         </div>
-        <div id="filterBar" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;"></div>
-        <div class="grid" id="ideasContainer"></div>
-      </div>
 
-      <div class="page" id="page-posts">
-        <div class="search">
-          <input id="searchPostsInput" placeholder="Поиск постов...">
-          <button id="searchPostsBtn">Найти</button>
+        <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+        <div id="main-content" class="hidden">
+
+            <!-- ХЕДЕР -->
+            <header class="header">
+                <div class="logo">
+                    <span class="logo-x">X</span>
+                    <span class="logo-text">game</span>
+                </div>
+                <div class="avatar" id="avatarBtn">
+                    <span id="avatarPlaceholder">👤</span>
+                </div>
+            </header>
+
+            <!-- НАВИГАЦИЯ -->
+            <nav class="nav">
+                <button class="active" data-page="ideas">Идеи</button>
+                <button data-page="posts">Посты</button>
+                <button data-page="profile">Профиль</button>
+                <button data-page="about">О нас</button>
+            </nav>
+
+            <!-- ===== ИДЕИ ===== -->
+            <div class="page active" id="page-ideas">
+                <div class="search">
+                    <input id="searchInput" placeholder="Поиск проектов..." aria-label="Поиск проектов">
+                    <button id="searchBtn">Найти</button>
+                </div>
+                <div id="filterBar" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;"></div>
+                <div class="grid" id="ideasContainer"></div>
+            </div>
+
+            <!-- ===== ПОСТЫ ===== -->
+            <div class="page" id="page-posts">
+                <div class="search">
+                    <input id="searchPostsInput" placeholder="Поиск постов..." aria-label="Поиск постов">
+                    <button id="searchPostsBtn">Найти</button>
+                </div>
+                <div class="grid" id="postsContainer"></div>
+            </div>
+
+            <!-- ===== ПРОФИЛЬ ===== -->
+            <div class="page" id="page-profile">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">👤</div>
+                    <div class="profile-name" id="profileName">Пользователь</div>
+                    <div class="profile-user" id="profileUser">@username</div>
+                </div>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span class="num" id="statPosts">0</span>
+                        <span class="label">Постов</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="num" id="statIdeas">0</span>
+                        <span class="label">Идей</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="num" id="statLikes">0</span>
+                        <span class="label">Лайков</span>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">🚪 Выйти</button>
+            </div>
+
+            <!-- ===== О НАС ===== -->
+            <div class="page" id="page-about">
+                <div style="text-align:center;padding:20px 0;">
+                    <div style="font-size:48px;margin-bottom:12px;">🚀</div>
+                    <h2 style="font-size:24px;margin-bottom:8px;">Xgame</h2>
+                    <p style="color:var(--text-secondary);font-size:14px;max-width:400px;margin:0 auto;line-height:1.6;">
+                        Платформа для идей и проектов с встроенной песочницей кода
+                    </p>
+                </div>
+            </div>
+
+            <!-- КНОПКА СОЗДАНИЯ -->
+            <button class="fab" id="fabBtn" aria-label="Создать">+</button>
+
+        </div><!-- /main-content -->
+    </div><!-- /app -->
+
+    <!-- ============================================================
+    МОДАЛКИ
+    ============================================================ -->
+
+    <!-- ПОСТ -->
+    <div class="modal" id="postModal">
+        <div class="modal-box">
+            <h3 id="postModalTitle">Новый пост</h3>
+            <input id="postTitle" placeholder="Заголовок (макс 40 символов)" maxlength="40">
+            <textarea id="postText" placeholder="Текст поста..."></textarea>
+            <input id="postImage" placeholder="Ссылка на картинку (необязательно)">
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="postCancel">Отмена</button>
+                <button class="modal-btn save" id="postSave">Опубликовать</button>
+            </div>
         </div>
-        <div class="grid" id="postsContainer"></div>
-      </div>
+    </div>
 
-      <div class="page" id="page-profile">
-        <div class="profile-header">
-          <div class="profile-avatar" id="profileAvatar">👤</div>
-          <div class="profile-name" id="profileName">Пользователь</div>
-          <div class="profile-user" id="profileUser">@username</div>
+    <!-- ИДЕЯ -->
+    <div class="modal" id="ideaModal">
+        <div class="modal-box">
+            <h3 id="ideaModalTitle">Новая идея</h3>
+            <input id="ideaTitle" placeholder="Название (макс 40 символов)" maxlength="40">
+            <textarea id="ideaDesc" placeholder="Описание..."></textarea>
+            <select id="ideaGenre">
+                <option value="">Категория</option>
+                <option>Веб-приложение</option>
+                <option>Игра</option>
+                <option>Инструмент</option>
+                <option>Дизайн</option>
+                <option>Другое</option>
+            </select>
+            <textarea id="ideaCode" placeholder="Код проекта (HTML/CSS/JS)..."></textarea>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="ideaCancel">Отмена</button>
+                <button class="modal-btn save" id="ideaSave">Сохранить</button>
+            </div>
         </div>
-        <div class="profile-stats">
-          <div class="profile-stat"><span class="num" id="statPosts">0</span><span class="label">Постов</span></div>
-          <div class="profile-stat"><span class="num" id="statIdeas">0</span><span class="label">Идей</span></div>
-          <div class="profile-stat"><span class="num" id="statLikes">0</span><span class="label">Лайков</span></div>
+    </div>
+
+    <!-- ПЕСОЧНИЦА -->
+    <div class="sandbox-overlay" id="sandboxOverlay">
+        <div class="sandbox-header">
+            <h3 id="sandboxTitle">Проект</h3>
+            <button class="sandbox-close" id="sandboxClose">✕</button>
         </div>
-        <button id="logoutBtn" class="logout-btn">🚪 Выйти</button>
-      </div>
-
-      <div class="page" id="page-about">
-        <div style="text-align:center;padding:20px 0;">
-          <div style="font-size:48px;margin-bottom:12px;">🚀</div>
-          <h2 style="font-size:24px;margin-bottom:8px;">Xgame</h2>
-          <p style="color:var(--muted);font-size:14px;max-width:400px;margin:0 auto;line-height:1.6;">Платформа для идей и проектов</p>
+        <div class="sandbox-frame">
+            <iframe id="sandboxFrame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
         </div>
-      </div>
-
-      <button class="fab" id="fabBtn">+</button>
     </div>
-  </div>
 
-  <!-- МОДАЛКИ -->
-  <div class="modal" id="postModal">
-    <div class="modal-box">
-      <h3 id="postModalTitle">Новый пост</h3>
-      <input id="postTitle" placeholder="Заголовок (макс 40 символов)" maxlength="40">
-      <textarea id="postText" placeholder="Текст поста..."></textarea>
-      <input id="postImage" placeholder="Ссылка на картинку (необязательно)">
-      <div class="modal-actions">
-        <button class="modal-btn cancel" id="postCancel">Отмена</button>
-        <button class="modal-btn save" id="postSave">Опубликовать</button>
-      </div>
-    </div>
-  </div>
+    <!-- ============================================================
+    СКРИПТЫ
+    ============================================================ -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+    </script>
 
-  <div class="modal" id="ideaModal">
-    <div class="modal-box">
-      <h3 id="ideaModalTitle">Новая идея</h3>
-      <input id="ideaTitle" placeholder="Название (макс 40 символов)" maxlength="40">
-      <textarea id="ideaDesc" placeholder="Описание..."></textarea>
-      <select id="ideaGenre">
-        <option value="">Категория</option>
-        <option>Веб-приложение</option>
-        <option>Игра</option>
-        <option>Инструмент</option>
-        <option>Дизайн</option>
-        <option>Другое</option>
-      </select>
-      <textarea id="ideaCode" placeholder="Код проекта (HTML/CSS/JS)..."></textarea>
-      <div class="modal-actions">
-        <button class="modal-btn cancel" id="ideaCancel">Отмена</button>
-        <button class="modal-btn save" id="ideaSave">Сохранить</button>
-      </div>
-    </div>
-  </div>
+    <script>
+        // ============================================================
+        // КОНФИГУРАЦИЯ
+        // ============================================================
 
-  <div class="sandbox-overlay" id="sandboxOverlay">
-    <div class="sandbox-header">
-      <h3 id="sandboxTitle">Проект</h3>
-      <button class="sandbox-close" id="sandboxClose">✕</button>
-    </div>
-    <div class="sandbox-frame">
-      <iframe id="sandboxFrame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
-    </div>
-  </div>
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC79WgSLxHlno3fqcQcyxw0hvryuQIQKXI",
+            authDomain: "xgame-66690.firebaseapp.com",
+            projectId: "xgame-66690",
+            storageBucket: "xgame-66690.firebasestorage.app",
+            messagingSenderId: "628360447691",
+            appId: "1:628360447691:web:ac2ee8ecc8c9652cf4fd4e"
+        };
 
-  <!-- FIREBASE SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+        const XAM_CLIENT_ID = 'xam_QshD84Eivo13l1t4vQLFUew';
+        const XAM_REDIRECT_URI = 'https://jsksosplals.github.io/Xgame/';
 
-  <script>
-    // ============================================================
-    // FIREBASE КОНФИГ (ТВОЙ!)
-    // ============================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyC79WgSLxHlno3fqcQcyxw0hvryuQIQKXI",
-      authDomain: "xgame-66690.firebaseapp.com",
-      projectId: "xgame-66690",
-      storageBucket: "xgame-66690.firebasestorage.app",
-      messagingSenderId: "628360447691",
-      appId: "1:628360447691:web:ac2ee8ecc8c9652cf4fd4e"
-    };
+        const STORAGE_KEY = 'xgame_user';
+        const STATE_KEY = 'xgame_oauth_state';
+        const PKCE_KEY = 'xgame_pkce_verifier';
+        const MAX_TITLE_LENGTH = 40;
+        const MAX_REACTIONS = 3;
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+        // ============================================================
+        // ИНИЦИАЛИЗАЦИЯ FIREBASE
+        // ============================================================
 
-    // ============================================================
-    // XAMCHAT OAuth 2.0 + PKCE
-    // ============================================================
-    const XAM_CLIENT_ID = 'xam_QshD84Eivo13l1t4vQLFUew';
-    const XAM_REDIRECT_URI = 'https://jsksosplals.github.io/Xgame/';
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const db = firebase.firestore();
 
-    // Генерация PKCE
-    function generatePKCE() {
-      const verifier = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => String.fromCharCode(b))
-        .join('');
-      const encoder = new TextEncoder();
-      return crypto.subtle.digest('SHA-256', encoder.encode(verifier))
-        .then(hash => {
-          const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=+$/, '');
-          return { verifier, challenge };
-        });
-    }
+        // ============================================================
+        // СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+        // ============================================================
 
-    // Кнопка входа
-    document.getElementById('authBtn').addEventListener('click', function() {
-      const state = Math.random().toString(36).substring(7);
-      sessionStorage.setItem('xgame_oauth_state', state);
+        const state = {
+            user: null,
+            posts: [],
+            ideas: [],
+            currentPage: 'ideas',
+            filter: 'all',
+            search: '',
+            searchPosts: '',
+            replyTo: null,
+        };
 
-      generatePKCE().then(({ verifier, challenge }) => {
-        sessionStorage.setItem('xgame_pkce_verifier', verifier);
+        // ============================================================
+        // УТИЛИТЫ
+        // ============================================================
 
-        const authUrl = 'https://xamchat.ru/oauth/authorize?' + new URLSearchParams({
-          client_id: XAM_CLIENT_ID,
-          redirect_uri: XAM_REDIRECT_URI,
-          response_type: 'code',
-          scope: 'profile_basic',
-          state: state,
-          code_challenge: challenge,
-          code_challenge_method: 'S256'
-        });
-
-        window.location.href = authUrl;
-      });
-    });
-
-    // Обмен кода на токен
-    async function exchangeCode(code, verifier) {
-      const response = await fetch('https://xamchat.ru/oauth/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          grant_type: 'authorization_code',
-          code: code,
-          client_id: XAM_CLIENT_ID,
-          redirect_uri: XAM_REDIRECT_URI,
-          code_verifier: verifier
-        })
-      });
-      return response.json();
-    }
-
-    // Получение данных пользователя
-    async function getUserInfo(accessToken) {
-      const response = await fetch('https://xamchat.ru/oauth/userinfo', {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      });
-      return response.json();
-    }
-
-    // Обработка возврата из XAMChat
-    async function handleAuthCallback() {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');
-      const state = params.get('state');
-      const savedState = sessionStorage.getItem('xgame_oauth_state');
-
-      if (code && state && state === savedState) {
-        sessionStorage.removeItem('xgame_oauth_state');
-        const verifier = sessionStorage.getItem('xgame_pkce_verifier');
-        sessionStorage.removeItem('xgame_pkce_verifier');
-
-        try {
-          const tokenData = await exchangeCode(code, verifier);
-          const userData = await getUserInfo(tokenData.access_token);
-
-          const userRef = db.collection('users').doc(userData.username);
-          await userRef.set({
-            username: userData.username,
-            name: userData.name || userData.username,
-            avatar_url: userData.avatar_url || '',
-            xamchat_id: userData.id || userData.username,
-            lastLogin: Date.now()
-          }, { merge: true });
-
-          const currentUser = {
-            id: userData.username,
-            username: userData.username,
-            name: userData.name || userData.username,
-            avatar_url: userData.avatar_url || '',
-            access_token: tokenData.access_token
-          };
-
-          localStorage.setItem('xgame_user', JSON.stringify(currentUser));
-          window.history.replaceState({}, document.title, window.location.pathname);
-          document.getElementById('auth-screen').style.display = 'none';
-          document.getElementById('main-content').style.display = 'block';
-          document.getElementById('profileName').textContent = currentUser.name || currentUser.username;
-          document.getElementById('profileUser').textContent = '@' + currentUser.username;
-          if (currentUser.avatar_url) {
-            document.getElementById('profileAvatar').innerHTML = `<img src="${currentUser.avatar_url}">`;
-            document.getElementById('avatarPlaceholder').innerHTML = `<img src="${currentUser.avatar_url}">`;
-          }
-          await loadAll();
-          console.log('✅ Добро пожаловать, ' + currentUser.name + '!');
-          showToast('✅ Добро пожаловать, ' + currentUser.name + '!');
-        } catch (error) {
-          console.error('Ошибка авторизации:', error);
-          document.getElementById('authError').style.display = 'block';
-          document.getElementById('authError').textContent = '⚠️ Ошибка авторизации. Попробуйте снова.';
+        function escapeHTML(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
-      }
-    }
 
-    // ============================================================
-    // ЗАГРУЗКА ПОЛЬЗОВАТЕЛЯ ИЗ LOCALSTORAGE
-    // ============================================================
-    function initAuth() {
-      const savedUser = localStorage.getItem('xgame_user');
-      if (savedUser) {
-        try {
-          const user = JSON.parse(savedUser);
-          document.getElementById('auth-screen').style.display = 'none';
-          document.getElementById('main-content').style.display = 'block';
-          document.getElementById('profileName').textContent = user.name || user.username;
-          document.getElementById('profileUser').textContent = '@' + user.username;
-          if (user.avatar_url) {
-            document.getElementById('profileAvatar').innerHTML = `<img src="${user.avatar_url}">`;
-            document.getElementById('avatarPlaceholder').innerHTML = `<img src="${user.avatar_url}">`;
-          }
-          loadAll();
-        } catch {
-          localStorage.removeItem('xgame_user');
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return 'Только что';
+            if (diff < 3600000) return Math.floor(diff / 60000) + ' мин назад';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + ' ч назад';
+
+            return date.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
-      }
-    }
 
-    function logout() {
-      localStorage.removeItem('xgame_user');
-      window.location.reload();
-    }
+        function generateId() {
+            return Math.random().toString(36).substring(2, 10);
+        }
 
-    // ============================================================
-    // ЗАГРУЗКА ДАННЫХ
-    // ============================================================
-    let posts = [];
-    let ideas = [];
-    let filter = 'all';
-    let search = '';
-    let searchPosts = '';
-    let currentPage = 'ideas';
+        function getCurrentUser() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : null;
+            } catch {
+                return null;
+            }
+        }
 
-    async function loadAll() {
-      await Promise.all([loadIdeas(), loadPosts()]);
-      updateStats();
-    }
+        function setCurrentUser(user) {
+            if (user) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+                state.user = user;
+            } else {
+                localStorage.removeItem(STORAGE_KEY);
+                state.user = null;
+            }
+        }
 
-    async function loadIdeas() {
-      try {
-        let query = db.collection('ideas').orderBy('created_at', 'desc');
-        if (filter !== 'all') query = query.where('genre', '==', filter);
-        if (search) query = query.where('title', '>=', search).where('title', '<=', search + '\uf8ff');
+        // ============================================================
+        // УВЕДОМЛЕНИЯ (TOAST)
+        // ============================================================
 
-        const snapshot = await query.get();
-        ideas = [];
-        snapshot.forEach(doc => ideas.push({ id: doc.id, ...doc.data() }));
-        renderIdeas();
-        renderFilters();
-      } catch (e) {
-        console.error('Ошибка загрузки идей:', e);
-      }
-    }
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
 
-    async function loadPosts() {
-      try {
-        const snapshot = await db.collection('posts').orderBy('created_at', 'desc').get();
-        posts = [];
-        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
-        renderPosts();
-      } catch (e) {
-        console.error('Ошибка загрузки постов:', e);
-      }
-    }
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
 
-    function updateStats() {
-      const savedUser = localStorage.getItem('xgame_user');
-      if (!savedUser) return;
-      const user = JSON.parse(savedUser);
-      const userPosts = posts.filter(p => p.author_id === user.id);
-      const userIdeas = ideas.filter(i => i.author_id === user.id);
-      const totalLikes = userPosts.reduce((sum, p) => sum + (p.likes_count || 0), 0);
-      document.getElementById('statPosts').textContent = userPosts.length;
-      document.getElementById('statIdeas').textContent = userIdeas.length;
-      document.getElementById('statLikes').textContent = totalLikes;
-    }
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
 
-    // ============================================================
-    // РЕНДЕР ПОСТОВ
-    // ============================================================
-    function renderPosts() {
-      const container = document.getElementById('postsContainer');
-      const filtered = searchPosts
-        ? posts.filter(p => p.title?.toLowerCase().includes(searchPosts.toLowerCase()) ||
-            p.content?.toLowerCase().includes(searchPosts.toLowerCase()))
-        : posts;
+        // ============================================================
+        // АВТОРИЗАЦИЯ (OAuth 2.0 + PKCE)
+        // ============================================================
 
-      if (!filtered.length) {
-        container.innerHTML = `<div class="empty"><div class="icon">📝</div><h4>Нет постов</h4><p>Напишите первый пост!</p></div>`;
-        return;
-      }
+        async function generatePKCE() {
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            const verifier = Array.from(array)
+                .map(b => String.fromCharCode(b))
+                .join('');
 
-      const savedUser = localStorage.getItem('xgame_user');
-      const currentUser = savedUser ? JSON.parse(savedUser) : null;
+            const encoder = new TextEncoder();
+            const hash = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
+            const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
 
-      container.innerHTML = filtered.map(post => {
-        if (!post.reactions) post.reactions = {};
-        if (!post.userReactions) post.userReactions = {};
-        const userReactions = post.userReactions || {};
-        const reactions = post.reactions || {};
+            return { verifier, challenge };
+        }
 
-        return `
-          <div class="post-card" data-post-id="${post.id}">
-            <div class="post-header">
-              <div class="post-author">
-                <img src="${post.author?.avatar_url || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect fill=%22%23222%22 width=%2232%22 height=%2232%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.35em%22 fill=%22%23666%22 font-size=%2216%22%3E👤%3C/text%3E%3C/svg%3E'">
-                <div><div class="name">${post.author?.name || post.author?.username}</div><div class="username">@${post.author?.username}</div></div>
-              </div>
-              <div class="post-date">${formatDate(post.created_at)}</div>
-            </div>
-            <h1 class="post-title">${escapeHTML(post.title)}</h1>
-            <div class="post-text">${escapeHTML(post.content)}</div>
-            ${post.image_url ? `<img src="${post.image_url}" class="post-image" onerror="this.style.display='none'">` : ''}
-            <div class="reactions" data-post-id="${post.id}">
-              ${['like','fire','clap','wow','laugh'].map(type => {
-                const emoji = { like:'❤️', fire:'🔥', clap:'👏', wow:'😮', laugh:'😂' }[type];
-                const count = reactions[type] || 0;
-                const active = userReactions[type] || false;
-                return `<button class="reaction-btn ${active?'active':''}" data-reaction="${type}" data-post-id="${post.id}" onclick="togglePostReaction('${post.id}','${type}')"><span class="emoji">${emoji}</span><span class="count" id="reaction-count-${post.id}-${type}">${count}</span></button>`;
-              }).join('')}
-              <span class="reaction-limit-text" id="reaction-limit-${post.id}">${Object.values(userReactions).filter(Boolean).length}/3</span>
-            </div>
-            <div class="post-stats">
-              <span class="views">
-                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <span>${post.views || 0}</span>
-              </span>
-            </div>
-            <button class="comment-button" onclick="toggleComments('${post.id}')">
-              <span>💬 Комментарии</span>
-              <span class="badge" id="comments-badge-${post.id}">${post.comments_count || 0}</span>
-            </button>
-            <div class="comments-section" id="comments-section-${post.id}" style="display:none;">
-              <div class="comments-title">💬 Комментарии <span style="font-weight:400;color:var(--muted);font-size:13px;" id="comments-count-${post.id}">${post.comments_count || 0}</span></div>
-              <div class="comment-form">
-                <textarea id="comment-input-${post.id}" placeholder="Написать комментарий..." rows="2"></textarea>
-                <div class="form-actions"><div style="font-size:11px;color:var(--muted);">Ctrl+Enter</div><button class="btn-submit" onclick="submitComment('${post.id}')">Отправить</button></div>
-              </div>
-              <div id="comments-container-${post.id}"><div class="empty-comments">Пока нет комментариев.</div></div>
-            </div>
-            ${currentUser?.id === post.author_id ? `
-              <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-                <button class="edit-btn" onclick="editPost('${post.id}')">✏️ Редактировать</button>
-                <button class="delete-btn" onclick="deletePost('${post.id}')">🗑️ Удалить</button>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('');
-    }
+        function startAuth() {
+            const state = Math.random().toString(36).substring(7);
+            sessionStorage.setItem(STATE_KEY, state);
 
-    // ============================================================
-    // РЕНДЕР ИДЕЙ
-    // ============================================================
-    function renderIdeas() {
-      const container = document.getElementById('ideasContainer');
-      if (!ideas.length) {
-        container.innerHTML = `<div class="empty"><div class="icon">💡</div><h4>Нет идей</h4><p>Создайте первый проект!</p></div>`;
-        return;
-      }
-      const savedUser = localStorage.getItem('xgame_user');
-      const currentUser = savedUser ? JSON.parse(savedUser) : null;
+            generatePKCE().then(({ verifier, challenge }) => {
+                sessionStorage.setItem(PKCE_KEY, verifier);
 
-      container.innerHTML = ideas.map(idea => `
-        <div class="card">
-          <div class="card-header">
-            <div class="card-author">
-              <img src="${idea.author?.avatar_url || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect fill=%22%23222%22 width=%2232%22 height=%2232%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.35em%22 fill=%22%23666%22 font-size=%2216%22%3E👤%3C/text%3E%3C/svg%3E'">
-              <span class="user">@${idea.author?.username || 'unknown'}</span>
-            </div>
-            <span style="font-size:10px;color:var(--muted)">${formatDate(idea.created_at)}</span>
-          </div>
-          <div class="card-title">💡 ${escapeHTML(idea.title)}</div>
-          <div class="card-text">${escapeHTML(idea.description)}</div>
-          ${idea.code ? `<span class="code-badge">⚡ Код</span>` : ''}
-          <div class="tags"><span class="tag">${escapeHTML(idea.genre || 'Без категории')}</span></div>
-          <div class="card-actions">
-            ${idea.code ? `<button class="run" onclick="runSandbox('${idea.id}')">▶ Запустить</button>` : ''}
-            ${currentUser?.id === idea.author_id ? `<button class="del" onclick="deleteIdea('${idea.id}')">🗑️</button>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
+                const params = new URLSearchParams({
+                    client_id: XAM_CLIENT_ID,
+                    redirect_uri: XAM_REDIRECT_URI,
+                    response_type: 'code',
+                    scope: 'profile_basic',
+                    state: state,
+                    code_challenge: challenge,
+                    code_challenge_method: 'S256'
+                });
 
-    function renderFilters() {
-      const container = document.getElementById('filterBar');
-      const genres = ['all', ...new Set(ideas.map(i => i.genre).filter(Boolean))];
-      container.innerHTML = genres.map(g => `<button class="tag ${g===filter?'active':''}" data-filter="${g}">${g==='all'?'🏷️ Все':g}</button>`).join('');
-      container.querySelectorAll('[data-filter]').forEach(btn => {
-        btn.addEventListener('click', () => { filter = btn.dataset.filter; loadIdeas(); });
-      });
-    }
+                window.location.href = 'https://xamchat.ru/oauth/authorize?' + params.toString();
+            }).catch(err => {
+                console.error('PKCE generation failed:', err);
+                showToast('Ошибка инициализации входа', 'error');
+            });
+        }
 
-    // ============================================================
-    // РЕАКЦИИ
-    // ============================================================
-    async function togglePostReaction(postId, type) {
-      const savedUser = localStorage.getItem('xgame_user');
-      if (!savedUser) { showToast('Авторизуйтесь', 'error'); return; }
-      const currentUser = JSON.parse(savedUser);
-      const post = posts.find(p => p.id === postId);
-      if (!post) return;
-      if (!post.reactions) post.reactions = {};
-      if (!post.userReactions) post.userReactions = {};
-      const currentCount = Object.values(post.userReactions).filter(Boolean).length;
+        async function exchangeCode(code, verifier) {
+            const response = await fetch('https://xamchat.ru/oauth/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    grant_type: 'authorization_code',
+                    code: code,
+                    client_id: XAM_CLIENT_ID,
+                    redirect_uri: XAM_REDIRECT_URI,
+                    code_verifier: verifier
+                })
+            });
 
-      if (post.userReactions[type]) {
-        post.reactions[type] = (post.reactions[type] || 1) - 1;
-        post.userReactions[type] = false;
-        updateReactionUI(postId);
-        await db.collection('posts').doc(postId).update({ reactions: post.reactions, userReactions: post.userReactions });
-        return;
-      }
+            if (!response.ok) {
+                throw new Error('Token exchange failed');
+            }
 
-      if (currentCount >= 3) { showToast('❌ Можно поставить только 3 реакции', 'error'); return; }
+            return response.json();
+        }
 
-      post.reactions[type] = (post.reactions[type] || 0) + 1;
-      post.userReactions[type] = true;
-      updateReactionUI(postId);
-      await db.collection('posts').doc(postId).update({ reactions: post.reactions, userReactions: post.userReactions });
-    }
+        async function getUserInfo(accessToken) {
+            const response = await fetch('https://xamchat.ru/oauth/userinfo', {
+                headers: { 'Authorization': 'Bearer ' + accessToken }
+            });
 
-    function updateReactionUI(postId) {
-      const post = posts.find(p => p.id === postId);
-      if (!post) return;
-      Object.keys(post.reactions).forEach(type => {
-        const el = document.getElementById(`reaction-count-${postId}-${type}`);
-        if (el) el.textContent = post.reactions[type];
-      });
-      document.querySelectorAll(`.reaction-btn[data-post-id="${postId}"]`).forEach(btn => {
-        const type = btn.dataset.reaction;
-        btn.classList.toggle('active', post.userReactions[type] || false);
-      });
-      const limitEl = document.getElementById(`reaction-limit-${postId}`);
-      if (limitEl) {
-        const count = Object.values(post.userReactions).filter(Boolean).length;
-        limitEl.textContent = `${count}/3`;
-      }
-    }
+            if (!response.ok) {
+                throw new Error('Failed to get user info');
+            }
 
-    // ============================================================
-    // КОММЕНТАРИИ
-    // ============================================================
-    function toggleComments(postId) {
-      const section = document.getElementById(`comments-section-${postId}`);
-      if (!section) return;
-      const isHidden = section.style.display === 'none' || !section.style.display;
-      section.style.display = isHidden ? 'block' : 'none';
-      if (isHidden) loadComments(postId);
-    }
+            return response.json();
+        }
 
-    async function loadComments(postId) {
-      try {
-        const snapshot = await db.collection('comments').where('post_id', '==', postId).orderBy('created_at', 'asc').get();
-        const comments = [];
-        snapshot.forEach(doc => comments.push({ id: doc.id, ...doc.data() }));
-        const map = {}, roots = [];
-        comments.forEach(c => { map[c.id] = { ...c, replies: [] }; });
-        comments.forEach(c => {
-          if (c.parent_id && map[c.parent_id]) map[c.parent_id].replies.push(map[c.id]);
-          else roots.push(map[c.id]);
+        async function handleAuthCallback() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const state = params.get('state');
+            const savedState = sessionStorage.getItem(STATE_KEY);
+
+            if (!code || !state || state !== savedState) return;
+
+            sessionStorage.removeItem(STATE_KEY);
+            const verifier = sessionStorage.getItem(PKCE_KEY);
+            sessionStorage.removeItem(PKCE_KEY);
+
+            try {
+                const tokenData = await exchangeCode(code, verifier);
+                const userData = await getUserInfo(tokenData.access_token);
+
+                // Сохраняем пользователя в Firestore
+                const userRef = db.collection('users').doc(userData.username);
+                await userRef.set({
+                    username: userData.username,
+                    name: userData.name || userData.username,
+                    avatar_url: userData.avatar_url || '',
+                    xamchat_id: userData.id || userData.username,
+                    lastLogin: Date.now()
+                }, { merge: true });
+
+                const user = {
+                    id: userData.username,
+                    username: userData.username,
+                    name: userData.name || userData.username,
+                    avatar_url: userData.avatar_url || '',
+                    access_token: tokenData.access_token
+                };
+
+                setCurrentUser(user);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showMain();
+                await loadAll();
+                showToast('✅ Добро пожаловать, ' + user.name + '!', 'success');
+            } catch (error) {
+                console.error('Auth error:', error);
+                document.getElementById('authError').textContent = '⚠️ Ошибка авторизации. Попробуйте снова.';
+                document.getElementById('authError').classList.add('visible');
+                showToast('Ошибка авторизации', 'error');
+            }
+        }
+
+        // ============================================================
+        // UI УПРАВЛЕНИЕ
+        // ============================================================
+
+        function showMain() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            updateProfileUI();
+        }
+
+        function showAuth() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+        }
+
+        function updateProfileUI() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            document.getElementById('profileName').textContent = user.name || user.username;
+            document.getElementById('profileUser').textContent = '@' + user.username;
+
+            const placeholder = document.getElementById('avatarPlaceholder');
+            const profileAvatar = document.getElementById('profileAvatar');
+
+            if (user.avatar_url) {
+                const img = `<img src="${escapeHTML(user.avatar_url)}">`;
+                placeholder.innerHTML = img;
+                profileAvatar.innerHTML = img;
+            } else {
+                placeholder.textContent = user.name?.charAt(0) || '👤';
+                profileAvatar.innerHTML = '👤';
+            }
+        }
+
+        function logout() {
+            if (confirm('Выйти из аккаунта?')) {
+                setCurrentUser(null);
+                showAuth();
+                showToast('👋 До встречи!', 'info');
+            }
+        }
+
+        // ============================================================
+        // ЗАГРУЗКА ДАННЫХ
+        // ============================================================
+
+        async function loadAll() {
+            try {
+                await Promise.all([loadIdeas(), loadPosts()]);
+                updateStats();
+            } catch (error) {
+                console.error('Load error:', error);
+                showToast('Ошибка загрузки данных', 'error');
+            }
+        }
+
+        async function loadIdeas() {
+            try {
+                let query = db.collection('ideas').orderBy('created_at', 'desc');
+
+                if (state.filter !== 'all') {
+                    query = query.where('genre', '==', state.filter);
+                }
+
+                if (state.search) {
+                    const searchTerm = state.search.toLowerCase().trim();
+                    // Простой поиск через Firebase (ограниченный)
+                    query = query.where('title', '>=', searchTerm).where('title', '<=', searchTerm + '\uf8ff');
+                }
+
+                const snapshot = await query.get();
+                state.ideas = [];
+                snapshot.forEach(doc => {
+                    state.ideas.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderIdeas();
+                renderFilters();
+            } catch (error) {
+                console.error('Load ideas error:', error);
+                // Если ошибка поиска, загружаем без фильтра
+                if (state.search) {
+                    state.search = '';
+                    await loadIdeas();
+                } else {
+                    showToast('Ошибка загрузки идей', 'error');
+                }
+            }
+        }
+
+        async function loadPosts() {
+            try {
+                const snapshot = await db.collection('posts')
+                    .orderBy('created_at', 'desc')
+                    .get();
+
+                state.posts = [];
+                snapshot.forEach(doc => {
+                    state.posts.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderPosts();
+            } catch (error) {
+                console.error('Load posts error:', error);
+                showToast('Ошибка загрузки постов', 'error');
+            }
+        }
+
+        function updateStats() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            const userPosts = state.posts.filter(p => p.author_id === user.id);
+            const userIdeas = state.ideas.filter(i => i.author_id === user.id);
+            const totalLikes = userPosts.reduce((sum, p) => sum + (p.likes_count || 0), 0);
+
+            document.getElementById('statPosts').textContent = userPosts.length;
+            document.getElementById('statIdeas').textContent = userIdeas.length;
+            document.getElementById('statLikes').textContent = totalLikes;
+        }
+
+        // ============================================================
+        // РЕНДЕРИНГ ПОСТОВ
+        // ============================================================
+
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            const user = getCurrentUser();
+
+            let filtered = state.posts;
+            if (state.searchPosts) {
+                const q = state.searchPosts.toLowerCase().trim();
+                filtered = filtered.filter(p =>
+                    p.title?.toLowerCase().includes(q) ||
+                    p.content?.toLowerCase().includes(q) ||
+                    p.author?.username?.toLowerCase().includes(q)
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">📝</div>
+                        <h4>Нет постов</h4>
+                        <p>Напишите первый пост!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(post => {
+                const reactions = post.reactions || {};
+                const userReactions = post.userReactions || {};
+                const isAuthor = user && post.author_id === user.id;
+
+                return `
+                    <div class="post-card" data-post-id="${post.id}">
+                        <div class="post-header">
+                            <div class="post-author">
+                                <img src="${post.author?.avatar_url || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect fill=%22%23222%22 width=%2232%22 height=%2232%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.35em%22 fill=%22%23666%22 font-size=%2216%22%3E👤%3C/text%3E%3C/svg%3E'">
+                                <div>
+                                    <div class="name">${escapeHTML(post.author?.name || post.author?.username)}</div>
+                                    <span class="username" data-username="${escapeHTML(post.author?.username)}">@${escapeHTML(post.author?.username)}</span>
+                                </div>
+                            </div>
+                            <span class="post-date">${formatDate(post.created_at)}</span>
+                        </div>
+
+                        <h2 class="post-title">${escapeHTML(post.title)}</h2>
+                        <div class="post-text">${escapeHTML(post.content)}</div>
+                        ${post.image_url ? `<img src="${escapeHTML(post.image_url)}" class="post-image" onerror="this.style.display='none'" loading="lazy">` : ''}
+
+                        <div class="reactions" data-post-id="${post.id}">
+                            ${['like', 'fire', 'clap', 'wow', 'laugh'].map(type => {
+                                const emoji = { like: '❤️', fire: '🔥', clap: '👏', wow: '😮', laugh: '😂' }[type];
+                                const count = reactions[type] || 0;
+                                const active = userReactions[type] || false;
+                                return `
+                                    <button class="reaction-btn ${active ? 'active' : ''}" 
+                                            data-reaction="${type}" 
+                                            data-post-id="${post.id}"
+                                            onclick="handleReaction('${post.id}', '${type}')">
+                                        <span class="emoji">${emoji}</span>
+                                        <span class="count" id="reaction-count-${post.id}-${type}">${count}</span>
+                                    </button>
+                                `;
+                            }).join('')}
+                            <span class="reaction-limit-text" id="reaction-limit-${post.id}">
+                                ${Object.values(userReactions).filter(Boolean).length}/${MAX_REACTIONS}
+                            </span>
+                        </div>
+
+                        <div class="post-stats">
+                            <span class="views">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <span>${post.views || 0}</span>
+                            </span>
+                        </div>
+
+                        <button class="comment-button" onclick="toggleComments('${post.id}')">
+                            <span>💬 Комментарии</span>
+                            <span class="badge" id="comments-badge-${post.id}">${post.comments_count || 0}</span>
+                        </button>
+
+                        <div class="comments-section" id="comments-section-${post.id}">
+                            <div class="comments-title">
+                                💬 Комментарии
+                                <span style="font-weight:400;color:var(--text-muted);font-size:13px;" id="comments-count-${post.id}">${post.comments_count || 0}</span>
+                            </div>
+
+                            <div class="comment-form">
+                                <textarea id="comment-input-${post.id}" placeholder="Написать комментарий..." rows="2"></textarea>
+                                <div class="form-actions">
+                                    <span style="font-size:11px;color:var(--text-muted);">Ctrl+Enter</span>
+                                    <button class="btn-submit" onclick="submitComment('${post.id}')">Отправить</button>
+                                </div>
+                            </div>
+
+                            <div id="comments-container-${post.id}">
+                                <div class="empty-comments">Пока нет комментариев.</div>
+                            </div>
+                        </div>
+
+                        ${isAuthor ? `
+                            <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-color);">
+                                <button class="edit-btn" onclick="editPost('${post.id}')">✏️ Редактировать</button>
+                                <button class="delete-btn" onclick="deletePost('${post.id}')">🗑️ Удалить</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Обработчики для кликов по имени пользователя
+            container.querySelectorAll('[data-username]').forEach(el => {
+                el.addEventListener('click', () => {
+                    // Показываем профиль пользователя (заглушка)
+                    showToast('👤 Профиль @' + el.dataset.username, 'info');
+                });
+            });
+        }
+
+        // ============================================================
+        // РЕНДЕРИНГ ИДЕЙ
+        // ============================================================
+
+        function renderIdeas() {
+            const container = document.getElementById('ideasContainer');
+            const user = getCurrentUser();
+
+            if (state.ideas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">💡</div>
+                        <h4>Нет идей</h4>
+                        <p>Создайте первый проект!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = state.ideas.map(idea => {
+                const isAuthor = user && idea.author_id === user.id;
+
+                return `
+                    <div class="card" data-idea-id="${idea.id}">
+                        <div class="card-header">
+                            <div class="card-author">
+                                <img src="${idea.author?.avatar_url || ''}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Crect fill=%22%23222%22 width=%2232%22 height=%2232%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.35em%22 fill=%22%23666%22 font-size=%2216%22%3E👤%3C/text%3E%3C/svg%3E'">
+                                <span class="user" data-username="${escapeHTML(idea.author?.username)}">@${escapeHTML(idea.author?.username)}</span>
+                            </div>
+                            <span style="font-size:10px;color:var(--text-muted);">${formatDate(idea.created_at)}</span>
+                        </div>
+                        <div class="card-title">💡 ${escapeHTML(idea.title)}</div>
+                        <div class="card-text">${escapeHTML(idea.description)}</div>
+                        ${idea.code ? `<span class="code-badge">⚡ Код</span>` : ''}
+                        <div class="tags">
+                            <span class="tag">${escapeHTML(idea.genre || 'Без категории')}</span>
+                        </div>
+                        <div class="card-actions">
+                            ${idea.code ? `<button class="run" onclick="runSandbox('${idea.id}')">▶ Запустить</button>` : ''}
+                            ${isAuthor ? `<button class="del" onclick="deleteIdea('${idea.id}')">🗑️</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.querySelectorAll('[data-username]').forEach(el => {
+                el.addEventListener('click', () => {
+                    showToast('👤 Профиль @' + el.dataset.username, 'info');
+                });
+            });
+        }
+
+        // ============================================================
+        // ФИЛЬТРЫ
+        // ============================================================
+
+        function renderFilters() {
+            const container = document.getElementById('filterBar');
+            const genres = ['all', ...new Set(state.ideas.map(i => i.genre).filter(Boolean))];
+
+            container.innerHTML = genres.map(g => `
+                <button class="tag ${g === state.filter ? 'active' : ''}" data-filter="${g}">
+                    ${g === 'all' ? '🏷️ Все' : escapeHTML(g)}
+                </button>
+            `).join('');
+
+            container.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.filter = btn.dataset.filter;
+                    loadIdeas();
+                });
+            });
+        }
+
+        // ============================================================
+        // РЕАКЦИИ
+        // ============================================================
+
+        window.handleReaction = async function(postId, type) {
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('Авторизуйтесь, чтобы ставить реакции', 'error');
+                return;
+            }
+
+            const post = state.posts.find(p => p.id === postId);
+            if (!post) return;
+
+            if (!post.reactions) post.reactions = {};
+            if (!post.userReactions) post.userReactions = {};
+
+            const currentCount = Object.values(post.userReactions).filter(Boolean).length;
+
+            // Если реакция уже стоит — убираем
+            if (post.userReactions[type]) {
+                post.reactions[type] = Math.max(0, (post.reactions[type] || 1) - 1);
+                post.userReactions[type] = false;
+                updateReactionUI(postId);
+
+                try {
+                    await db.collection('posts').doc(postId).update({
+                        reactions: post.reactions,
+                        userReactions: post.userReactions
+                    });
+                } catch (error) {
+                    console.error('Update reaction error:', error);
+                    // Откат UI
+                    post.reactions[type] = (post.reactions[type] || 0) + 1;
+                    post.userReactions[type] = true;
+                    updateReactionUI(postId);
+                    showToast('Ошибка обновления', 'error');
+                }
+                return;
+            }
+
+            // Проверка лимита
+            if (currentCount >= MAX_REACTIONS) {
+                const btn = document.querySelector(`.reaction-btn[data-post-id="${postId}"][data-reaction="${type}"]`);
+                if (btn) {
+                    btn.classList.add('shake');
+                    setTimeout(() => btn.classList.remove('shake'), 400);
+                }
+                showToast(`❌ Можно поставить только ${MAX_REACTIONS} реакции на пост`, 'error');
+                return;
+            }
+
+            // Добавляем реакцию
+            post.reactions[type] = (post.reactions[type] || 0) + 1;
+            post.userReactions[type] = true;
+            updateReactionUI(postId);
+
+            try {
+                await db.collection('posts').doc(postId).update({
+                    reactions: post.reactions,
+                    userReactions: post.userReactions
+                });
+            } catch (error) {
+                console.error('Update reaction error:', error);
+                // Откат UI
+                post.reactions[type] = Math.max(0, (post.reactions[type] || 1) - 1);
+                post.userReactions[type] = false;
+                updateReactionUI(postId);
+                showToast('Ошибка обновления', 'error');
+            }
+        };
+
+        function updateReactionUI(postId) {
+            const post = state.posts.find(p => p.id === postId);
+            if (!post) return;
+
+            // Обновляем счётчики
+            Object.keys(post.reactions).forEach(type => {
+                const el = document.getElementById(`reaction-count-${postId}-${type}`);
+                if (el) el.textContent = post.reactions[type] || 0;
+            });
+
+            // Обновляем активные состояния
+            document.querySelectorAll(`.reaction-btn[data-post-id="${postId}"]`).forEach(btn => {
+                const type = btn.dataset.reaction;
+                btn.classList.toggle('active', post.userReactions[type] || false);
+            });
+
+            // Обновляем лимит
+            const limitEl = document.getElementById(`reaction-limit-${postId}`);
+            if (limitEl) {
+                const count = Object.values(post.userReactions).filter(Boolean).length;
+                limitEl.textContent = `${count}/${MAX_REACTIONS}`;
+            }
+        }
+
+        // ============================================================
+        // КОММЕНТАРИИ
+        // ============================================================
+
+        window.toggleComments = function(postId) {
+            const section = document.getElementById(`comments-section-${postId}`);
+            if (!section) return;
+
+            const isHidden = section.style.display === 'none' || !section.style.display;
+            section.style.display = isHidden ? 'block' : 'none';
+
+            if (isHidden) {
+                loadComments(postId);
+                // Фокус на поле ввода
+                const input = document.getElementById(`comment-input-${postId}`);
+                if (input) setTimeout(() => input.focus(), 300);
+            }
+        };
+
+        async function loadComments(postId) {
+            try {
+                const snapshot = await db.collection('comments')
+                    .where('post_id', '==', postId)
+                    .orderBy('created_at', 'asc')
+                    .get();
+
+                const comments = [];
+                snapshot.forEach(doc => comments.push({ id: doc.id, ...doc.data() }));
+
+                // Строим дерево комментариев
+                const map = {};
+                const roots = [];
+
+                comments.forEach(c => {
+                    map[c.id] = { ...c, replies: [] };
+                });
+
+                comments.forEach(c => {
+                    if (c.parent_id && map[c.parent_id]) {
+                        map[c.parent_id].replies.push(map[c.id]);
+                    } else {
+                        roots.push(map[c.id]);
+                    }
+                });
+
+                renderCommentsForPost(postId, roots);
+            } catch (error) {
+                console.error('Load comments error:', error);
+                showToast('Ошибка загрузки комментариев', 'error');
+            }
+        }
+
+        function renderCommentsForPost(postId, comments) {
+            const container = document.getElementById(`comments-container-${postId}`);
+            if (!container) return;
+
+            const user = getCurrentUser();
+
+            if (!comments || comments.length === 0) {
+                container.innerHTML = '<div class="empty-comments">Пока нет комментариев.</div>';
+                updateCommentCount(postId, 0);
+                return;
+            }
+
+            function renderTree(items, level = 0) {
+                let html = '';
+                items.forEach(c => {
+                    const isAuthor = user && c.author_id === user.id;
+                    const avatar = c.author?.avatar_url || '';
+
+                    html += `
+                        <div class="comment-item" style="margin-left:${level * 20}px;">
+                            <div class="comment-header">
+                                <img src="${avatar}" onerror="this.style.display='none'">
+                                <span class="name">${escapeHTML(c.author?.name || c.author?.username)}</span>
+                                <span class="username">@${escapeHTML(c.author?.username)}</span>
+                                <span class="date">${formatDate(c.created_at)}</span>
+                            </div>
+                            <div class="comment-body">${escapeHTML(c.content)}</div>
+                            <div class="comment-actions">
+                                <button onclick="replyToComment('${c.id}', '${postId}', '${escapeHTML(c.author?.name)}')">↩ Ответить</button>
+                                ${isAuthor ? `<button class="delete" onclick="deleteComment('${c.id}', '${postId}')">🗑 Удалить</button>` : ''}
+                            </div>
+                            ${c.replies && c.replies.length > 0 ? renderTree(c.replies, level + 1) : ''}
+                        </div>
+                    `;
+                });
+                return html;
+            }
+
+            container.innerHTML = renderTree(comments);
+            updateCommentCount(postId, comments.length);
+        }
+
+        function updateCommentCount(postId, count) {
+            const badge = document.getElementById(`comments-badge-${postId}`);
+            const label = document.getElementById(`comments-count-${postId}`);
+
+            if (badge) badge.textContent = count;
+            if (label) label.textContent = count;
+        }
+
+        window.replyToComment = function(commentId, postId, name) {
+            state.replyTo = { commentId, postId, name };
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (input) {
+                input.placeholder = `Ответ ${name}...`;
+                input.focus();
+            }
+        };
+
+        window.submitComment = async function(postId) {
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('Авторизуйтесь, чтобы комментировать', 'error');
+                return;
+            }
+
+            const input = document.getElementById(`comment-input-${postId}`);
+            const content = input.value.trim();
+
+            if (!content) {
+                showToast('Введите текст комментария', 'error');
+                return;
+            }
+
+            const parentId = state.replyTo?.postId === postId ? state.replyTo.commentId : null;
+
+            try {
+                const docRef = await db.collection('comments').add({
+                    post_id: postId,
+                    content: content,
+                    parent_id: parentId || null,
+                    author_id: user.id,
+                    author: {
+                        username: user.username,
+                        name: user.name || user.username,
+                        avatar_url: user.avatar_url || ''
+                    },
+                    created_at: Date.now()
+                });
+
+                // Обновляем счётчик комментариев в посте
+                const post = state.posts.find(p => p.id === postId);
+                if (post) {
+                    post.comments_count = (post.comments_count || 0) + 1;
+                    await db.collection('posts').doc(postId).update({
+                        comments_count: post.comments_count
+                    });
+                }
+
+                input.value = '';
+                input.placeholder = 'Написать комментарий...';
+                state.replyTo = null;
+
+                await loadComments(postId);
+                renderPosts();
+                showToast('✅ Комментарий добавлен!', 'success');
+            } catch (error) {
+                console.error('Submit comment error:', error);
+                showToast('Ошибка отправки комментария', 'error');
+            }
+        };
+
+        window.deleteComment = async function(commentId, postId) {
+            if (!confirm('Удалить комментарий?')) return;
+
+            try {
+                await db.collection('comments').doc(commentId).delete();
+
+                // Обновляем счётчик
+                const post = state.posts.find(p => p.id === postId);
+                if (post) {
+                    post.comments_count = Math.max(0, (post.comments_count || 0) - 1);
+                    await db.collection('posts').doc(postId).update({
+                        comments_count: post.comments_count
+                    });
+                }
+
+                await loadComments(postId);
+                renderPosts();
+                showToast('🗑 Комментарий удалён', 'info');
+            } catch (error) {
+                console.error('Delete comment error:', error);
+                showToast('Ошибка удаления', 'error');
+            }
+        };
+
+        // ============================================================
+        // ПЕСОЧНИЦА
+        // ============================================================
+
+        window.runSandbox = function(id) {
+            const idea = state.ideas.find(i => i.id === id);
+            if (!idea || !idea.code) {
+                showToast('Код не найден', 'error');
+                return;
+            }
+
+            const overlay = document.getElementById('sandboxOverlay');
+            const frame = document.getElementById('sandboxFrame');
+            document.getElementById('sandboxTitle').textContent = idea.title || 'Проект';
+
+            overlay.classList.add('active');
+
+            let code = idea.code;
+            // Если код не является полным HTML-документом, оборачиваем
+            if (!code.includes('<html') && !code.includes('<!DOCTYPE')) {
+                code = `<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body>${code}</body>
+                </html>`;
+            }
+
+            frame.srcdoc = code;
+        };
+
+        document.getElementById('sandboxClose').addEventListener('click', function() {
+            document.getElementById('sandboxOverlay').classList.remove('active');
+            document.getElementById('sandboxFrame').srcdoc = '';
         });
-        renderCommentsForPost(postId, roots);
-      } catch (e) { console.error('Error loading comments:', e); }
-    }
 
-    function renderCommentsForPost(postId, comments) {
-      const container = document.getElementById(`comments-container-${postId}`);
-      if (!container) return;
-      if (!comments || !comments.length) {
-        container.innerHTML = '<div class="empty-comments">Пока нет комментариев.</div>';
-        document.getElementById(`comments-count-${postId}`).textContent = '0';
-        document.getElementById(`comments-badge-${postId}`).textContent = '0';
-        return;
-      }
-
-      function renderTree(items, level = 0) {
-        let html = '';
-        items.forEach(c => {
-          const avatar = c.author?.avatar_url || '';
-          html += `
-            <div class="comment-item" style="margin-left:${level*20}px;">
-              <div class="comment-header">
-                <img src="${avatar}" onerror="this.style.display='none'">
-                <span class="name">${c.author?.name || c.author?.username}</span>
-                <span class="username">@${c.author?.username}</span>
-                <span class="date">${formatDate(c.created_at)}</span>
-              </div>
-              <div class="comment-body">${escapeHTML(c.content)}</div>
-              <div class="comment-actions">
-                <button class="reply-btn" onclick="replyToComment('${c.id}','${postId}','${c.author?.name}')">↩ Ответить</button>
-                ${currentUser?.id === c.author_id ? `<button class="delete" onclick="deleteComment('${c.id}','${postId}')">🗑 Удалить</button>` : ''}
-              </div>
-              ${c.replies && c.replies.length ? renderTree(c.replies, level+1) : ''}
-            </div>
-          `;
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('sandboxOverlay');
+                if (overlay.classList.contains('active')) {
+                    overlay.classList.remove('active');
+                    document.getElementById('sandboxFrame').srcdoc = '';
+                }
+            }
         });
-        return html;
-      }
 
-      container.innerHTML = renderTree(comments);
-      const count = comments.length;
-      document.getElementById(`comments-count-${postId}`).textContent = count;
-      document.getElementById(`comments-badge-${postId}`).textContent = count;
-    }
+        // ============================================================
+        // CRUD ОПЕРАЦИИ
+        // ============================================================
 
-    let replyToData = {};
-    function replyToComment(commentId, postId, name) {
-      replyToData = { commentId, postId, name };
-      const input = document.getElementById(`comment-input-${postId}`);
-      if (input) { input.placeholder = `Ответ ${name}...`; input.focus(); }
-    }
+        async function createPost(title, content, image_url) {
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('Авторизуйтесь', 'error');
+                return;
+            }
 
-    async function submitComment(postId) {
-      const savedUser = localStorage.getItem('xgame_user');
-      if (!savedUser) { showToast('Авторизуйтесь', 'error'); return; }
-      const currentUser = JSON.parse(savedUser);
-      const input = document.getElementById(`comment-input-${postId}`);
-      const content = input.value.trim();
-      if (!content) return;
+            if (title.length > MAX_TITLE_LENGTH) {
+                showToast(`❌ Название не более ${MAX_TITLE_LENGTH} символов`, 'error');
+                return;
+            }
 
-      const parentId = replyToData.postId === postId ? replyToData.commentId : null;
-      try {
-        await db.collection('comments').add({
-          post_id: postId, content, parent_id: parentId || null,
-          author_id: currentUser.id, author: currentUser, created_at: Date.now()
+            try {
+                await db.collection('posts').add({
+                    title: title,
+                    content: content,
+                    image_url: image_url || '',
+                    author_id: user.id,
+                    author: {
+                        username: user.username,
+                        name: user.name || user.username,
+                        avatar_url: user.avatar_url || ''
+                    },
+                    reactions: {},
+                    userReactions: {},
+                    views: 0,
+                    likes_count: 0,
+                    comments_count: 0,
+                    created_at: Date.now()
+                });
+
+                showToast('✅ Пост опубликован!', 'success');
+                await loadPosts();
+                updateStats();
+            } catch (error) {
+                console.error('Create post error:', error);
+                showToast('Ошибка публикации', 'error');
+            }
+        }
+
+        window.deletePost = async function(id) {
+            if (!confirm('Удалить пост?')) return;
+
+            try {
+                await db.collection('posts').doc(id).delete();
+
+                // Удаляем комментарии к посту
+                const commentsSnapshot = await db.collection('comments')
+                    .where('post_id', '==', id)
+                    .get();
+
+                const batch = db.batch();
+                commentsSnapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+
+                showToast('🗑️ Пост удален', 'info');
+                await loadPosts();
+                updateStats();
+            } catch (error) {
+                console.error('Delete post error:', error);
+                showToast('Ошибка удаления', 'error');
+            }
+        };
+
+        window.editPost = function(id) {
+            showToast('✏️ Редактирование поста (скоро)', 'info');
+        };
+
+        async function createIdea(title, description, genre, code) {
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('Авторизуйтесь', 'error');
+                return;
+            }
+
+            if (title.length > MAX_TITLE_LENGTH) {
+                showToast(`❌ Название не более ${MAX_TITLE_LENGTH} символов`, 'error');
+                return;
+            }
+
+            try {
+                await db.collection('ideas').add({
+                    title: title,
+                    description: description,
+                    genre: genre || '',
+                    code: code || '',
+                    author_id: user.id,
+                    author: {
+                        username: user.username,
+                        name: user.name || user.username,
+                        avatar_url: user.avatar_url || ''
+                    },
+                    created_at: Date.now()
+                });
+
+                showToast('✅ Идея создана!', 'success');
+                await loadIdeas();
+                updateStats();
+            } catch (error) {
+                console.error('Create idea error:', error);
+                showToast('Ошибка создания', 'error');
+            }
+        }
+
+        window.deleteIdea = async function(id) {
+            if (!confirm('Удалить идею?')) return;
+
+            try {
+                await db.collection('ideas').doc(id).delete();
+                showToast('🗑️ Идея удалена', 'info');
+                await loadIdeas();
+                updateStats();
+            } catch (error) {
+                console.error('Delete idea error:', error);
+                showToast('Ошибка удаления', 'error');
+            }
+        };
+
+        // ============================================================
+        // МОДАЛКИ
+        // ============================================================
+
+        document.getElementById('fabBtn').addEventListener('click', function() {
+            const activePage = document.querySelector('.page.active');
+            if (!activePage) return;
+
+            if (activePage.id === 'page-ideas') {
+                document.getElementById('ideaModal').classList.add('active');
+                document.getElementById('ideaTitle').value = '';
+                document.getElementById('ideaDesc').value = '';
+                document.getElementById('ideaGenre').value = '';
+                document.getElementById('ideaCode').value = '';
+            } else if (activePage.id === 'page-posts') {
+                document.getElementById('postModal').classList.add('active');
+                document.getElementById('postTitle').value = '';
+                document.getElementById('postText').value = '';
+                document.getElementById('postImage').value = '';
+            } else {
+                showToast('Создание доступно в разделах "Идеи" и "Посты"', 'info');
+            }
         });
-        input.value = '';
-        input.placeholder = 'Написать комментарий...';
-        replyToData = {};
-        await loadComments(postId);
-        await loadPosts();
-        showToast('✅ Комментарий добавлен!');
-      } catch (e) { showToast('Ошибка отправки', 'error'); }
-    }
 
-    async function deleteComment(commentId, postId) {
-      if (!confirm('Удалить комментарий?')) return;
-      try {
-        await db.collection('comments').doc(commentId).delete();
-        await loadComments(postId);
-        await loadPosts();
-        showToast('🗑 Комментарий удалён');
-      } catch (e) { showToast('Ошибка удаления', 'error'); }
-    }
-
-    // ============================================================
-    // ПЕСОЧНИЦА
-    // ============================================================
-    function runSandbox(id) {
-      const idea = ideas.find(i => i.id === id);
-      if (!idea || !idea.code) { showToast('Код не найден', 'error'); return; }
-      const overlay = document.getElementById('sandboxOverlay');
-      const frame = document.getElementById('sandboxFrame');
-      document.getElementById('sandboxTitle').textContent = idea.title || 'Проект';
-      overlay.classList.add('active');
-      const code = idea.code;
-      frame.srcdoc = code.includes('<html') || code.includes('<!DOCTYPE') ? code : `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${code}</body></html>`;
-    }
-
-    document.getElementById('sandboxClose').addEventListener('click', function() {
-      document.getElementById('sandboxOverlay').classList.remove('active');
-      document.getElementById('sandboxFrame').srcdoc = '';
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        document.getElementById('sandboxOverlay').classList.remove('active');
-        document.getElementById('sandboxFrame').srcdoc = '';
-      }
-    });
-
-    // ============================================================
-    // CRUD
-    // ============================================================
-    async function createPost(title, content, image_url) {
-      const savedUser = localStorage.getItem('xgame_user');
-      if (!savedUser) { showToast('Авторизуйтесь', 'error'); return; }
-      const currentUser = JSON.parse(savedUser);
-      if (title.length > 40) { showToast('❌ Название не более 40 символов', 'error'); return; }
-      try {
-        await db.collection('posts').add({
-          title, content, image_url, author_id: currentUser.id, author: currentUser,
-          reactions: {}, userReactions: {}, views: 0, likes_count: 0, comments_count: 0, created_at: Date.now()
+        // Модалка поста
+        document.getElementById('postCancel').addEventListener('click', function() {
+            document.getElementById('postModal').classList.remove('active');
         });
-        showToast('✅ Пост опубликован!');
-        await loadPosts();
-      } catch (e) { showToast('Ошибка публикации', 'error'); }
-    }
 
-    async function deletePost(id) {
-      if (!confirm('Удалить пост?')) return;
-      try { await db.collection('posts').doc(id).delete(); showToast('🗑️ Пост удален'); await loadPosts(); }
-      catch (e) { showToast('Ошибка удаления', 'error'); }
-    }
+        document.getElementById('postSave').addEventListener('click', async function() {
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postText').value.trim();
+            const image = document.getElementById('postImage').value.trim();
 
-    function editPost(id) { showToast('✏️ Редактирование (скоро)', 'info'); }
+            if (!title || !content) {
+                showToast('Заполните заголовок и текст', 'error');
+                return;
+            }
 
-    async function createIdea(title, description, genre, code) {
-      const savedUser = localStorage.getItem('xgame_user');
-      if (!savedUser) { showToast('Авторизуйтесь', 'error'); return; }
-      const currentUser = JSON.parse(savedUser);
-      if (title.length > 40) { showToast('❌ Название не более 40 символов', 'error'); return; }
-      try {
-        await db.collection('ideas').add({
-          title, description, genre, code, author_id: currentUser.id, author: currentUser, created_at: Date.now()
+            await createPost(title, content, image);
+            document.getElementById('postModal').classList.remove('active');
         });
-        showToast('✅ Идея создана!');
-        await loadIdeas();
-      } catch (e) { showToast('Ошибка создания', 'error'); }
-    }
 
-    async function deleteIdea(id) {
-      if (!confirm('Удалить идею?')) return;
-      try { await db.collection('ideas').doc(id).delete(); showToast('🗑️ Идея удалена'); await loadIdeas(); }
-      catch (e) { showToast('Ошибка удаления', 'error'); }
-    }
+        // Модалка идеи
+        document.getElementById('ideaCancel').addEventListener('click', function() {
+            document.getElementById('ideaModal').classList.remove('active');
+        });
 
-    // ============================================================
-    // МОДАЛКИ
-    // ============================================================
-    document.getElementById('fabBtn').addEventListener('click', function() {
-      const activePage = document.querySelector('.page.active');
-      if (activePage) {
-        if (activePage.id === 'page-ideas') document.getElementById('ideaModal').classList.add('active');
-        else if (activePage.id === 'page-posts') document.getElementById('postModal').classList.add('active');
-      }
-    });
+        document.getElementById('ideaSave').addEventListener('click', async function() {
+            const title = document.getElementById('ideaTitle').value.trim();
+            const description = document.getElementById('ideaDesc').value.trim();
+            const genre = document.getElementById('ideaGenre').value;
+            const code = document.getElementById('ideaCode').value.trim();
 
-    document.getElementById('postCancel').addEventListener('click', function() {
-      document.getElementById('postModal').classList.remove('active');
-    });
+            if (!title || !description) {
+                showToast('Заполните название и описание', 'error');
+                return;
+            }
 
-    document.getElementById('postSave').addEventListener('click', async function() {
-      const title = document.getElementById('postTitle').value.trim();
-      const content = document.getElementById('postText').value.trim();
-      const image_url = document.getElementById('postImage').value.trim();
-      if (!title || !content) { showToast('Заполните заголовок и текст', 'error'); return; }
-      await createPost(title, content, image_url);
-      document.getElementById('postModal').classList.remove('active');
-      document.getElementById('postTitle').value = '';
-      document.getElementById('postText').value = '';
-      document.getElementById('postImage').value = '';
-    });
+            await createIdea(title, description, genre, code);
+            document.getElementById('ideaModal').classList.remove('active');
+        });
 
-    document.getElementById('ideaCancel').addEventListener('click', function() {
-      document.getElementById('ideaModal').classList.remove('active');
-    });
+        // ============================================================
+        // ПОИСК
+        // ============================================================
 
-    document.getElementById('ideaSave').addEventListener('click', async function() {
-      const title = document.getElementById('ideaTitle').value.trim();
-      const description = document.getElementById('ideaDesc').value.trim();
-      const genre = document.getElementById('ideaGenre').value;
-      const code = document.getElementById('ideaCode').value.trim();
-      if (!title || !description) { showToast('Заполните название и описание', 'error'); return; }
-      await createIdea(title, description, genre, code);
-      document.getElementById('ideaModal').classList.remove('active');
-      document.getElementById('ideaTitle').value = '';
-      document.getElementById('ideaDesc').value = '';
-      document.getElementById('ideaCode').value = '';
-    });
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            state.search = document.getElementById('searchInput').value.trim();
+            loadIdeas();
+        });
 
-    // ============================================================
-    // ПОИСК
-    // ============================================================
-    document.getElementById('searchBtn').addEventListener('click', function() {
-      search = document.getElementById('searchInput').value;
-      loadIdeas();
-    });
-    document.getElementById('searchInput').addEventListener('keyup', function(e) {
-      if (e.key === 'Enter') document.getElementById('searchBtn').click();
-    });
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchBtn').click();
+            }
+        });
 
-    document.getElementById('searchPostsBtn').addEventListener('click', function() {
-      searchPosts = document.getElementById('searchPostsInput').value;
-      renderPosts();
-    });
-    document.getElementById('searchPostsInput').addEventListener('keyup', function(e) {
-      if (e.key === 'Enter') document.getElementById('searchPostsBtn').click();
-    });
+        document.getElementById('searchPostsBtn').addEventListener('click', function() {
+            state.searchPosts = document.getElementById('searchPostsInput').value.trim();
+            renderPosts();
+        });
 
-    // ============================================================
-    // НАВИГАЦИЯ
-    // ============================================================
-    document.querySelectorAll('.nav button').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const page = this.dataset.page;
-        document.getElementById(`page-${page}`).classList.add('active');
-        currentPage = page;
-        const fab = document.getElementById('fabBtn');
-        fab.style.display = (page === 'ideas' || page === 'posts') ? 'flex' : 'none';
-      });
-    });
+        document.getElementById('searchPostsInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchPostsBtn').click();
+            }
+        });
 
-    document.getElementById('avatarBtn').addEventListener('click', function() {
-      document.querySelector('[data-page="profile"]').click();
-    });
+        // ============================================================
+        // НАВИГАЦИЯ
+        // ============================================================
 
-    document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.querySelectorAll('.nav button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
 
-    // ============================================================
-    // ЗАПУСК
-    // ============================================================
-    handleAuthCallback();
-    initAuth();
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
 
-    console.log('%c🚀 Xgame v2.0 (Firebase + XAMChat PKCE)', 'font-size:20px;font-weight:bold;color:#6c5ce7;');
-    console.log('%c📱 Полная версия сайта с реакциями и комментариями', 'color:#888;');
-  </script>
+                const page = this.dataset.page;
+                document.getElementById(`page-${page}`).classList.add('active');
+                state.currentPage = page;
+
+                const fab = document.getElementById('fabBtn');
+                fab.classList.toggle('hidden', page === 'profile' || page === 'about');
+            });
+        });
+
+        document.getElementById('avatarBtn').addEventListener('click', function() {
+            document.querySelector('[data-page="profile"]').click();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // ============================================================
+        // ЗАПУСК ПРИЛОЖЕНИЯ
+        // ============================================================
+
+        async function init() {
+            // Обработка возврата из XAMChat
+            await handleAuthCallback();
+
+            // Проверка сохранённой сессии
+            const user = getCurrentUser();
+            if (user) {
+                showMain();
+                await loadAll();
+            } else {
+                showAuth();
+            }
+
+            // Обработчик кнопки входа
+            document.getElementById('authBtn').addEventListener('click', startAuth);
+
+            console.log('🚀 Xgame v2.0 (Professional)');
+            console.log('📱 Полная версия сайта с реакциями и комментариями');
+            console.log('🔒 PKCE + OAuth 2.0');
+        }
+
+        // Запуск
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
