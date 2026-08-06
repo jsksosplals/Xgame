@@ -172,4 +172,19 @@ export function renderNavbar() {
         const avatarText = document.getElementById('avatarText');
 
         if (user) {
-            if (authBlock)
+            if (authBlock) authBlock.classList.add('hidden');
+            if (profileBlock) profileBlock.classList.remove('hidden');
+            if (avatarText) {
+                avatarText.textContent = profile?.nickname?.charAt(0) || user?.user_metadata?.nickname?.charAt(0) || 'U';
+            }
+        } else {
+            if (authBlock) authBlock.classList.remove('hidden');
+            if (profileBlock) profileBlock.classList.add('hidden');
+        }
+    });
+
+    // Сохраняем функцию отписки для очистки
+    navbar._unsubscribe = unsubscribe;
+
+    logger.info('[Navbar] Рендеринг завершён');
+}
