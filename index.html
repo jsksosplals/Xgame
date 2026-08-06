@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Xgame — фиолетовый чёткий</title>
     <style>
-        /* ===== ОБЩИЙ СБРОС ===== */
         * {
             margin: 0;
             padding: 0;
@@ -25,7 +24,6 @@
             color: #1a1a2e;
         }
 
-        /* ===== СТЕКЛЯННЫЙ ЭФФЕКТ (НО ЧЁТЧЕ) ===== */
         .glass {
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
@@ -46,7 +44,6 @@
             border-color: rgba(167, 139, 250, .3);
         }
 
-        /* ===== НАВБАР (ЧЁТКИЙ) ===== */
         #navbar {
             position: sticky;
             top: 0;
@@ -113,7 +110,6 @@
             flex-wrap: wrap;
         }
 
-        /* ===== КНОПКИ (ФИОЛЕТОВЫЕ И ЧЁТКИЕ) ===== */
         .btn {
             padding: 8px 20px;
             border: none;
@@ -171,7 +167,6 @@
             box-shadow: 0 8px 25px rgba(59, 130, 246, .4);
         }
 
-        /* ===== АВАТАР ===== */
         .avatar {
             width: 40px;
             height: 40px;
@@ -195,7 +190,6 @@
             object-fit: cover;
         }
 
-        /* ===== КОНТЕНТ ===== */
         #content {
             padding: 20px 20px 100px;
             max-width: 1200px;
@@ -219,7 +213,6 @@
             }
         }
 
-        /* ===== СЕТКА ИДЕЙ ===== */
         .ideas-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -270,7 +263,6 @@
             color: #4b5563;
         }
 
-        /* ===== РЕАКЦИИ ===== */
         .reactions {
             display: flex;
             gap: 6px;
@@ -303,7 +295,6 @@
             color: #1a1a2e;
         }
 
-        /* ===== ПОСТЫ ===== */
         .post-card {
             padding: 24px;
             margin-bottom: 20px;
@@ -324,7 +315,6 @@
             margin-top: 12px;
         }
 
-        /* ===== МОДАЛКИ (ЧЁТКИЕ) ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -414,7 +404,6 @@
             flex-wrap: wrap;
         }
 
-        /* ===== FAB (ПЛЮС) ===== */
         .fab {
             position: fixed;
             bottom: 28px;
@@ -442,7 +431,6 @@
             transform: scale(.88);
         }
 
-        /* ===== ПРОФИЛЬ ===== */
         .profile-header {
             display: flex;
             align-items: center;
@@ -469,7 +457,6 @@
             color: #4b5563;
         }
 
-        /* ===== ПЕСОЧНИЦА ===== */
         .sandbox {
             margin-top: 12px;
             border: 1px solid rgba(255, 255, 255, .08);
@@ -501,7 +488,6 @@
             margin-top: 8px;
         }
 
-        /* ===== ЗАГРУЗЧИК ===== */
         .loader {
             text-align: center;
             padding: 20px;
@@ -514,7 +500,6 @@
             color: #a78bfa;
         }
 
-        /* ===== ТУЛБАР (ПОИСК + СОРТИРОВКА) ===== */
         .toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -551,7 +536,6 @@
             display: none !important;
         }
 
-        /* ===== АДАПТИВ ===== */
         @media(max-width:480px) {
             #navbar {
                 padding: 10px 14px;
@@ -597,7 +581,6 @@
 </head>
 <body>
 
-    <!-- ===== НАВБАР ===== -->
     <nav id="navbar">
         <span class="logo">Xgame</span>
         <div class="nav-links">
@@ -617,10 +600,8 @@
         </div>
     </nav>
 
-    <!-- ===== КОНТЕНТ ===== -->
     <div id="content">
 
-        <!-- ИДЕИ -->
         <div id="page-ideas" class="page active">
             <div class="toolbar">
                 <input id="searchInput" type="text" placeholder="🔍 Поиск идей...">
@@ -634,14 +615,12 @@
             <div id="ideasLoader" class="loader">Загрузка...</div>
         </div>
 
-        <!-- ПОСТЫ -->
         <div id="page-posts" class="page">
             <h2 style="font-size:26px;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;">📰 Посты</h2>
             <div id="postsContainer"></div>
             <div id="postsLoader" class="loader">Загрузка...</div>
         </div>
 
-        <!-- О НАС -->
         <div id="page-about" class="page">
             <div class="glass" style="padding:32px;">
                 <h2 style="font-size:26px;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;">О проекте</h2>
@@ -662,10 +641,8 @@
         </div>
     </div>
 
-    <!-- ===== FAB ===== -->
     <button id="fabBtn" class="fab">+</button>
 
-    <!-- ===== МОДАЛКА: ИДЕЯ ===== -->
     <div id="ideaModal" class="modal-overlay">
         <div class="modal">
             <h2>💡 Новая идея</h2>
@@ -685,7 +662,6 @@
         </div>
     </div>
 
-    <!-- ===== МОДАЛКА: ПРОФИЛЬ ===== -->
     <div id="profileModal" class="modal-overlay">
         <div class="modal">
             <div style="display:flex;justify-content:space-between;align-items:start;">
