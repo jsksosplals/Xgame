@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Перенаправление...</title>
+</head>
+<body>
+    <script>
+        // Забираем все параметры из URL (?code=...&state=...)
+        const params = window.location.search;
+        
+        // Редиректим на главную страницу Xgame с параметрами
+        window.location.href = '/Xgame/' + params;
+    </script>
+</body>
+</html>
