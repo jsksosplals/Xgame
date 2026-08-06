@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Xgame — брутальный стиль</title>
+    <title>Xgame</title>
     <style>
-        /* ===== БРУТАЛЬНЫЙ ЧЁРНО-БЕЛЫЙ СТИЛЬ ===== */
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +12,7 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #0f0f0f;
+            background: #0f0f1a;
             color: #e0e0e0;
             min-height: 100vh;
             padding: 0;
@@ -21,14 +20,13 @@
             overflow-x: hidden;
         }
         body.light {
-            background: #f5f5f5;
-            color: #1a1a1a;
+            background: #f0f0f5;
+            color: #1a1a2e;
         }
-        /* ===== СТЕКЛО ===== */
         .glass {
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            background: rgba(255, 255, 255, .03);
+            background: rgba(255, 255, 255, .05);
             border: 1px solid rgba(255, 255, 255, .08);
             border-radius: 28px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
@@ -43,7 +41,6 @@
             transform: scale(1.02) translateY(-4px);
             transition: .25s;
         }
-        /* ===== НАВБАР (МОНОХРОМ) ===== */
         #navbar {
             position: sticky;
             top: 0;
@@ -51,7 +48,7 @@
             padding: 12px 16px;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            background: rgba(15, 15, 15, .8);
+            background: rgba(15, 15, 26, .8);
             border-bottom: 1px solid rgba(255, 255, 255, .05);
             display: flex;
             flex-wrap: wrap;
@@ -60,18 +57,16 @@
             gap: 10px;
         }
         body.light #navbar {
-            background: rgba(245, 245, 245, .8);
+            background: rgba(240, 240, 245, .8);
             border-bottom-color: rgba(0, 0, 0, .05);
         }
         .logo {
             font-size: 20px;
             font-weight: 800;
-            color: #e0e0e0;
-            letter-spacing: 1px;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             white-space: nowrap;
-        }
-        body.light .logo {
-            color: #1a1a1a;
         }
         .nav-links {
             display: flex;
@@ -95,12 +90,13 @@
             white-space: nowrap;
         }
         .nav-links a.active {
-            background: rgba(255, 255, 255, .1);
+            background: rgba(167, 139, 250, .2);
             color: #fff;
+            box-shadow: 0 0 20px rgba(167, 139, 250, .1);
         }
         body.light .nav-links a.active {
-            background: rgba(0, 0, 0, .1);
-            color: #000;
+            background: rgba(167, 139, 250, .15);
+            color: #1a1a2e;
         }
         .nav-right {
             display: flex;
@@ -108,62 +104,42 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-        /* ===== КНОПКИ (ГРАФИТ) ===== */
         .btn {
             padding: 6px 16px;
-            border: 1px solid #555;
+            border: none;
             border-radius: 60px;
-            background: transparent;
-            color: #ccc;
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            color: #fff;
             font-weight: 600;
             font-size: 13px;
             cursor: pointer;
             transition: .2s;
             white-space: nowrap;
         }
-        .btn:hover {
-            background: #222;
-            color: #fff;
-            border-color: #fff;
+        .btn:active {
+            transform: scale(.94);
         }
-        body.light .btn {
-            border-color: #aaa;
-            color: #333;
-        }
-        body.light .btn:hover {
-            background: #ddd;
-            color: #000;
-            border-color: #000;
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, .15);
         }
         .btn-sm {
             padding: 4px 12px;
             font-size: 12px;
         }
         .btn-danger {
-            border-color: #800;
-            color: #a00;
-        }
-        .btn-danger:hover {
-            background: #400;
-            color: #f00;
-            border-color: #f00;
+            background: rgba(239, 68, 68, .2);
+            color: #ef4444;
         }
         .btn-xam {
-            border-color: #6688ff;
-            color: #88bbff;
-        }
-        .btn-xam:hover {
-            background: #224488;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: #fff;
-            border-color: #88bbff;
         }
-        /* ===== АВАТАР ===== */
         .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            border: 1px solid #888;
-            background: #222;
+            background: linear-gradient(135deg, #7c3aed, #db2777);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -172,19 +148,12 @@
             cursor: pointer;
             overflow: hidden;
             flex-shrink: 0;
-            color: #ccc;
         }
         .avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        body.light .avatar {
-            border-color: #aaa;
-            background: #ddd;
-            color: #222;
-        }
-        /* ===== КОНТЕНТ ===== */
         #content {
             padding: 16px 16px 100px;
             max-width: 1200px;
@@ -207,7 +176,6 @@
                 transform: translateY(0);
             }
         }
-        /* ===== СЕТКА ИДЕЙ ===== */
         .ideas-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -230,21 +198,17 @@
             font-size: 18px;
             font-weight: 700;
             margin-bottom: 4px;
-            color: #eee;
-        }
-        body.light .idea-card .title {
-            color: #111;
         }
         .idea-card .meta {
             font-size: 12px;
-            color: #888;
+            color: #9ca3af;
             display: flex;
             gap: 8px;
             margin-bottom: 8px;
             flex-wrap: wrap;
         }
         .idea-card .desc {
-            color: #aaa;
+            color: #9ca3af;
             font-size: 13px;
             margin-bottom: 10px;
             display: -webkit-box;
@@ -254,9 +218,8 @@
         }
         body.light .idea-card .meta,
         body.light .idea-card .desc {
-            color: #555;
+            color: #4b5563;
         }
-        /* ===== ОБЫЧНЫЕ ЦВЕТНЫЕ РЕАКЦИИ ===== */
         .reactions {
             display: flex;
             gap: 4px;
@@ -266,17 +229,17 @@
             border-top: 1px solid rgba(255, 255, 255, .05);
         }
         .reaction-btn {
-            padding: 4px 12px;
+            padding: 2px 10px;
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, .06);
             background: rgba(255, 255, 255, .03);
             color: #9ca3af;
             cursor: pointer;
             transition: .2s;
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
         .reaction-btn.active {
             background: rgba(167, 139, 250, .2);
@@ -293,19 +256,18 @@
         }
         .post-card .content {
             white-space: pre-wrap;
-            color: #ccc;
+            color: #d1d5db;
             margin: 10px 0;
             font-size: 14px;
         }
         body.light .post-card .content {
-            color: #333;
+            color: #374151;
         }
         .post-card img {
             max-width: 100%;
             border-radius: 16px;
             margin-top: 10px;
         }
-        /* ===== МОДАЛКИ ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -322,8 +284,9 @@
             display: flex;
         }
         .modal {
-            background: rgba(20, 20, 20, .95);
+            background: rgba(20, 20, 35, .95);
             backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border: 1px solid rgba(255, 255, 255, .08);
             border-radius: 28px;
             padding: 24px;
@@ -334,16 +297,12 @@
             animation: fadeIn .25s ease;
         }
         body.light .modal {
-            background: rgba(240, 240, 240, .95);
+            background: rgba(240, 240, 245, .95);
             border-color: rgba(0, 0, 0, .06);
         }
         .modal h2 {
             font-size: 22px;
             margin-bottom: 16px;
-            color: #eee;
-        }
-        body.light .modal h2 {
-            color: #111;
         }
         .modal input,
         .modal textarea,
@@ -351,9 +310,9 @@
             width: 100%;
             padding: 10px 14px;
             border-radius: 14px;
-            border: 1px solid #444;
+            border: 1px solid rgba(255, 255, 255, .08);
             background: rgba(255, 255, 255, .04);
-            color: #eee;
+            color: #fff;
             font-size: 14px;
             outline: none;
             transition: .2s;
@@ -361,9 +320,13 @@
         body.light .modal input,
         body.light .modal textarea,
         body.light .modal select {
-            background: #fff;
-            color: #111;
-            border-color: #aaa;
+            background: rgba(0, 0, 0, .04);
+            color: #1a1a2e;
+            border-color: rgba(0, 0, 0, .08);
+        }
+        .modal textarea {
+            resize: vertical;
+            min-height: 60px;
         }
         .modal .form-group {
             margin-bottom: 14px;
@@ -372,7 +335,7 @@
             display: block;
             font-size: 12px;
             font-weight: 600;
-            color: #888;
+            color: #9ca3af;
             margin-bottom: 3px;
         }
         .modal .btn-row {
@@ -390,32 +353,19 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            border: 1px solid #888;
-            background: #111;
-            color: #eee;
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+            border: none;
+            color: #fff;
             font-size: 30px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.6);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, .4);
             cursor: pointer;
             transition: .2s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .fab:hover {
-            background: #222;
-            border-color: #fff;
-        }
         .fab:active {
             transform: scale(.88);
-        }
-        body.light .fab {
-            background: #ddd;
-            color: #111;
-            border-color: #888;
-        }
-        body.light .fab:hover {
-            background: #eee;
-            border-color: #000;
         }
         .profile-header {
             display: flex;
@@ -437,14 +387,14 @@
         }
         .profile-stats span {
             font-size: 13px;
-            color: #888;
+            color: #9ca3af;
         }
         body.light .profile-stats span {
-            color: #444;
+            color: #4b5563;
         }
         .sandbox {
             margin-top: 10px;
-            border: 1px solid #444;
+            border: 1px solid rgba(255, 255, 255, .06);
             border-radius: 14px;
             padding: 12px;
             background: rgba(0, 0, 0, .3);
@@ -454,17 +404,16 @@
             padding: 8px;
             border-radius: 8px;
             background: rgba(0, 0, 0, .4);
-            border: 1px solid #444;
-            color: #eee;
+            border: 1px solid rgba(255, 255, 255, .06);
+            color: #e0e0e0;
             font-family: 'Courier New', monospace;
             font-size: 12px;
             resize: vertical;
             min-height: 50px;
         }
         body.light .sandbox textarea {
-            background: #fff;
-            color: #111;
-            border-color: #aaa;
+            background: rgba(0, 0, 0, .04);
+            color: #1a1a2e;
         }
         .sandbox iframe {
             width: 100%;
@@ -476,12 +425,12 @@
         .loader {
             text-align: center;
             padding: 16px;
-            color: #666;
+            color: #6b7280;
             cursor: pointer;
             font-size: 14px;
         }
         .loader:hover {
-            color: #aaa;
+            color: #a78bfa;
         }
         .toolbar {
             display: flex;
@@ -494,9 +443,9 @@
         .toolbar select {
             padding: 8px 14px;
             border-radius: 60px;
-            border: 1px solid #444;
+            border: 1px solid rgba(255, 255, 255, .06);
             background: rgba(255, 255, 255, .04);
-            color: #eee;
+            color: #fff;
             font-size: 13px;
             outline: none;
             flex: 1;
@@ -504,12 +453,15 @@
         }
         body.light .toolbar input,
         body.light .toolbar select {
-            background: #fff;
-            color: #111;
-            border-color: #aaa;
+            background: rgba(0, 0, 0, .04);
+            color: #1a1a2e;
+            border-color: rgba(0, 0, 0, .08);
         }
         .hidden {
             display: none !important;
+        }
+        .text-center {
+            text-align: center;
         }
         @media(max-width:480px) {
             #navbar {
@@ -558,16 +510,16 @@
 
     <!-- ===== НАВБАР ===== -->
     <nav id="navbar">
-        <span class="logo">XGAME</span>
+        <span class="logo">Xgame</span>
         <div class="nav-links">
-            <a data-page="ideas" class="active">⚡ ИДЕИ</a>
-            <a data-page="posts">📄 ПОСТЫ</a>
-            <a data-page="about">🖤 О НАС</a>
+            <a data-page="ideas" class="active">💡 Идеи</a>
+            <a data-page="posts">📰 Посты</a>
+            <a data-page="about">ℹ️ О нас</a>
         </div>
         <div class="nav-right">
-            <button id="themeToggle" class="btn btn-sm">🌙</button>
-            <button id="bellBtn" class="btn btn-sm">🔔</button>
-            <div id="authBlock"><button id="loginBtn" class="btn btn-sm btn-xam">Войти</button></div>
+            <button id="themeToggle" class="btn btn-outline btn-sm">🌙</button>
+            <button id="bellBtn" class="btn btn-outline btn-sm">🔔</button>
+            <div id="authBlock"><button id="loginBtn" class="btn btn-sm btn-xam">Войти через XAMchat</button></div>
             <div id="profileBlock" class="hidden">
                 <div class="avatar" id="avatarBtn">
                     <span id="avatarText">U</span>
@@ -582,40 +534,40 @@
         <!-- ИДЕИ -->
         <div id="page-ideas" class="page active">
             <div class="toolbar">
-                <input id="searchInput" type="text" placeholder="🔍 ПОИСК...">
+                <input id="searchInput" type="text" placeholder="🔍 Поиск идей...">
                 <select id="sortSelect">
-                    <option value="newest">🆕 НОВЫЕ</option>
-                    <option value="popular">🔥 ПОПУЛЯРНЫЕ</option>
-                    <option value="views">👁️ ПО ПРОСМОТРАМ</option>
+                    <option value="newest">🆕 Новые</option>
+                    <option value="popular">🔥 Популярные</option>
+                    <option value="views">👁️ По просмотрам</option>
                 </select>
             </div>
             <div id="ideasContainer" class="ideas-grid"></div>
-            <div id="ideasLoader" class="loader">ЗАГРУЗКА...</div>
+            <div id="ideasLoader" class="loader">Загрузка...</div>
         </div>
 
         <!-- ПОСТЫ -->
         <div id="page-posts" class="page">
-            <h2 style="font-size:22px;color:#eee;margin-bottom:16px;">📄 ПОСТЫ</h2>
+            <h2 style="font-size:22px;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;">📰 Посты</h2>
             <div id="postsContainer"></div>
-            <div id="postsLoader" class="loader">ЗАГРУЗКА...</div>
+            <div id="postsLoader" class="loader">Загрузка...</div>
         </div>
 
         <!-- О НАС -->
         <div id="page-about" class="page">
             <div class="glass" style="padding:24px;">
-                <h2 style="font-size:24px;margin-bottom:12px;color:#eee;">🖤 О ПРОЕКТЕ</h2>
-                <p style="color:#aaa;line-height:1.6;font-size:14px;">
+                <h2 style="font-size:24px;margin-bottom:12px;">О проекте</h2>
+                <p style="color:#9ca3af;line-height:1.6;font-size:14px;">
                     <strong>Xgame</strong> — платформа для обмена идеями и новостями в сфере кода.<br>
                     Здесь разработчики делятся идеями, публикуют посты и общаются.
                 </p>
                 <div style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap;">
-                    <a href="#" style="color:#aaa;">Twitter</a>
-                    <a href="#" style="color:#aaa;">Telegram</a>
-                    <a href="#" style="color:#aaa;">YouTube</a>
+                    <a href="#" style="color:#a78bfa;">Twitter</a>
+                    <a href="#" style="color:#a78bfa;">Telegram</a>
+                    <a href="#" style="color:#a78bfa;">YouTube</a>
                 </div>
-                <div style="margin-top:12px;display:flex;gap:12px;font-size:13px;color:#666;">
-                    <a href="#" style="color:#666;">КОНФИДЕНЦИАЛЬНОСТЬ</a>
-                    <a href="#" style="color:#666;">ПРАВИЛА</a>
+                <div style="margin-top:12px;display:flex;gap:12px;font-size:13px;color:#6b7280;">
+                    <a href="#" style="color:#6b7280;">Конфиденциальность</a>
+                    <a href="#" style="color:#6b7280;">Правила</a>
                 </div>
             </div>
         </div>
@@ -627,19 +579,19 @@
     <!-- ===== МОДАЛКА: ИДЕЯ ===== -->
     <div id="ideaModal" class="modal-overlay">
         <div class="modal">
-            <h2>💡 НОВАЯ ИДЕЯ</h2>
-            <div class="form-group"><label>НАЗВАНИЕ (ДО 40)</label><input id="ideaTitle" maxlength="40"></div>
-            <div class="form-group"><label>ОПИСАНИЕ</label><textarea id="ideaDesc" rows="2"></textarea></div>
-            <div class="form-group"><label>КОД</label>
-                <div style="margin-bottom:6px;"><span style="font-size:11px;color:#888;">HTML</span><textarea id="ideaHtml" rows="2"></textarea></div>
-                <div style="margin-bottom:6px;"><span style="font-size:11px;color:#888;">CSS</span><textarea id="ideaCss" rows="2"></textarea></div>
-                <div><span style="font-size:11px;color:#888;">JS</span><textarea id="ideaJs" rows="2"></textarea></div>
-                <button id="previewBtn" class="btn btn-sm" style="margin-top:6px;">👁️ ПРЕДПРОСМОТР</button>
+            <h2>💡 Новая идея</h2>
+            <div class="form-group"><label>Название (до 40)</label><input id="ideaTitle" maxlength="40"></div>
+            <div class="form-group"><label>Описание</label><textarea id="ideaDesc" rows="2"></textarea></div>
+            <div class="form-group"><label>Код</label>
+                <div style="margin-bottom:6px;"><span style="font-size:11px;color:#6b7280;">HTML</span><textarea id="ideaHtml" rows="2"></textarea></div>
+                <div style="margin-bottom:6px;"><span style="font-size:11px;color:#6b7280;">CSS</span><textarea id="ideaCss" rows="2"></textarea></div>
+                <div><span style="font-size:11px;color:#6b7280;">JS</span><textarea id="ideaJs" rows="2"></textarea></div>
+                <button id="previewBtn" class="btn btn-outline btn-sm" style="margin-top:6px;">👁️ Предпросмотр</button>
                 <div id="previewContainer" class="hidden" style="margin-top:8px;"><iframe id="previewFrame" style="width:100%;min-height:140px;border-radius:10px;background:#fff;"></iframe></div>
             </div>
             <div class="btn-row">
-                <button id="ideaCancelBtn" class="btn btn-sm">НАЗАД</button>
-                <button id="ideaSubmitBtn" class="btn btn-sm">🚀 ОПУБЛИКОВАТЬ</button>
+                <button id="ideaCancelBtn" class="btn btn-outline btn-sm">Назад</button>
+                <button id="ideaSubmitBtn" class="btn btn-sm">🚀 Опубликовать</button>
             </div>
         </div>
     </div>
@@ -648,25 +600,25 @@
     <div id="profileModal" class="modal-overlay">
         <div class="modal">
             <div style="display:flex;justify-content:space-between;align-items:start;">
-                <h2>👤 ПРОФИЛЬ</h2>
-                <button id="profileCloseBtn" class="btn btn-sm">✕</button>
+                <h2>👤 Профиль</h2>
+                <button id="profileCloseBtn" class="btn btn-outline btn-sm">✕</button>
             </div>
             <div class="profile-header">
                 <div class="avatar avatar-lg" id="profileAvatar"><span id="profileAvatarText">U</span></div>
                 <div style="flex:1">
-                    <input id="profileNick" placeholder="НИКНЕЙМ" style="width:100%;padding:6px 12px;border-radius:12px;border:1px solid #444;background:rgba(255,255,255,.04);color:#eee;outline:none;font-size:14px;margin-bottom:4px;">
-                    <input id="profileUsername" placeholder="@USERNAME" style="width:100%;padding:6px 12px;border-radius:12px;border:1px solid #444;background:rgba(255,255,255,.04);color:#eee;outline:none;font-size:13px;">
+                    <input id="profileNick" placeholder="Никнейм" style="width:100%;padding:6px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.04);color:#fff;outline:none;font-size:14px;margin-bottom:4px;">
+                    <input id="profileUsername" placeholder="@username" style="width:100%;padding:6px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.04);color:#fff;outline:none;font-size:13px;">
                 </div>
             </div>
-            <textarea id="profileBio" rows="2" placeholder="О СЕБЕ (ДО 150 СИМВОЛОВ)" maxlength="150" style="width:100%;padding:8px 12px;border-radius:12px;border:1px solid #444;background:rgba(255,255,255,.04);color:#eee;outline:none;resize:vertical;font-size:13px;margin-bottom:8px;"></textarea>
+            <textarea id="profileBio" rows="2" placeholder="О себе (до 150 символов)" maxlength="150" style="width:100%;padding:8px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.04);color:#fff;outline:none;resize:vertical;font-size:13px;margin-bottom:8px;"></textarea>
             <div class="profile-stats">
-                <span>💡 ИДЕЙ: <strong id="profileIdeasCount">0</strong></span>
-                <span>📄 ПОСТОВ: <strong id="profilePostsCount">0</strong></span>
+                <span>💡 Идей: <strong id="profileIdeasCount">0</strong></span>
+                <span>📰 Постов: <strong id="profilePostsCount">0</strong></span>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button id="profileSaveBtn" class="btn btn-sm">💾 СОХРАНИТЬ</button>
-                <button id="profileThemeBtn" class="btn btn-sm">🌓 ТЕМА</button>
-                <button id="profileLogoutBtn" class="btn btn-sm btn-danger">ВЫЙТИ</button>
+                <button id="profileSaveBtn" class="btn btn-sm">💾 Сохранить</button>
+                <button id="profileThemeBtn" class="btn btn-outline btn-sm">🌓 Тема</button>
+                <button id="profileLogoutBtn" class="btn btn-danger btn-sm">Выйти</button>
             </div>
         </div>
     </div>
@@ -693,7 +645,7 @@
         // СОСТОЯНИЕ
         // ==============================================================
         let state = {
-            user: null,
+            user: null, // XAMchat user
             supabaseUser: null,
             profile: null,
             ideas: [],
@@ -997,7 +949,7 @@
                 state.ideaOffset = 0;
                 state.hasMoreIdeas = true }
             if (!state.hasMoreIdeas) return
-            DOM.ideasLoader.textContent = 'ЗАГРУЗКА...';
+            DOM.ideasLoader.textContent = 'Загрузка...';
             try {
                 const { data, error } = await window.supabaseClient.from('ideas')
                     .select('*, profiles:user_id (username,nickname,avatar_url)')
@@ -1008,7 +960,7 @@
                 state.ideas = reset ? data : [...state.ideas, ...data];
                 state.ideaOffset += data.length;
                 renderIdeas();
-                DOM.ideasLoader.textContent = state.hasMoreIdeas ? 'ЗАГРУЗИТЬ ЕЩЁ' : '🎉 ВСЕ ИДЕИ ЗАГРУЖЕНЫ';
+                DOM.ideasLoader.textContent = state.hasMoreIdeas ? 'Загрузить ещё' : '🎉 Все идеи загружены';
             } catch (e) {
                 console.error('Ошибка идей:', e);
                 DOM.ideasLoader.textContent = '❌ ' + e.message;
@@ -1020,7 +972,7 @@
                 state.postOffset = 0;
                 state.hasMorePosts = true }
             if (!state.hasMorePosts) return
-            DOM.postsLoader.textContent = 'ЗАГРУЗКА...';
+            DOM.postsLoader.textContent = 'Загрузка...';
             try {
                 const { data, error } = await window.supabaseClient.from('posts')
                     .select('*, profiles:author_id (username,nickname,avatar_url)')
@@ -1031,7 +983,7 @@
                 state.posts = reset ? data : [...state.posts, ...data];
                 state.postOffset += data.length;
                 renderPosts();
-                DOM.postsLoader.textContent = state.hasMorePosts ? 'ЗАГРУЗИТЬ ЕЩЁ' : '🎉 ВСЕ ПОСТЫ ЗАГРУЖЕНЫ';
+                DOM.postsLoader.textContent = state.hasMorePosts ? 'Загрузить ещё' : '🎉 Все посты загружены';
             } catch (e) {
                 console.error('Ошибка постов:', e);
                 DOM.postsLoader.textContent = '❌ ' + e.message;
@@ -1044,7 +996,7 @@
         function renderIdeas() {
             if (state.ideas.length === 0) {
                 DOM.ideasContainer.innerHTML =
-                    '<div class="glass" style="padding:30px;text-align:center;grid-column:1/-1;"><p style="font-size:32px;">💡</p><p style="font-size:14px;color:#666;">НЕТ ИДЕЙ. БУДЬ ПЕРВЫМ!</p></div>';
+                    '<div class="glass" style="padding:30px;text-align:center;grid-column:1/-1;"><p style="font-size:32px;">💡</p><p style="font-size:14px;color:#6b7280;">Нет идей. Будь первым!</p></div>';
                 return
             }
             DOM.ideasContainer.innerHTML = state.ideas.map(idea => {
@@ -1058,12 +1010,12 @@
                         <span style="margin-left:auto;">👁️ ${idea.views||0}</span>
                     </div>
                     ${idea.description?`<div class="desc">${escapeHtml(idea.description)}</div>`:''}
-                    <button class="btn btn-sm" data-toggle-sandbox="${idea.id}">▶ ПЕСОЧНИЦА</button>
+                    <button class="btn btn-outline btn-sm" data-toggle-sandbox="${idea.id}">▶ Песочница</button>
                     <div id="sandbox-${idea.id}" class="sandbox hidden">
                         <textarea data-sandbox-html="${idea.id}" rows="2">${escapeHtml(idea.code_html||'')}</textarea>
                         <textarea data-sandbox-css="${idea.id}" rows="2">${escapeHtml(idea.code_css||'')}</textarea>
                         <textarea data-sandbox-js="${idea.id}" rows="2">${escapeHtml(idea.code_js||'')}</textarea>
-                        <button class="btn btn-sm" data-run-sandbox="${idea.id}">▶ ЗАПУСТИТЬ</button>
+                        <button class="btn btn-sm" data-run-sandbox="${idea.id}">▶ Запустить</button>
                         <iframe id="sandbox-frame-${idea.id}"></iframe>
                     </div>
                     <div class="reactions">
@@ -1077,13 +1029,13 @@
         function renderPosts() {
             if (state.posts.length === 0) {
                 DOM.postsContainer.innerHTML =
-                    '<div class="glass" style="padding:30px;text-align:center;"><p style="font-size:32px;">📭</p><p style="font-size:14px;color:#666;">ПОКА НЕТ ПОСТОВ</p></div>';
+                    '<div class="glass" style="padding:30px;text-align:center;"><p style="font-size:32px;">📭</p><p style="font-size:14px;color:#6b7280;">Пока нет постов</p></div>';
                 return
             }
             DOM.postsContainer.innerHTML = state.posts.map(post => `
                 <div class="glass glass-hover post-card">
                     <h2 style="font-size:20px;font-weight:700;">${escapeHtml(post.title)}</h2>
-                    <div style="display:flex;gap:10px;font-size:12px;color:#888;margin:4px 0 10px;">
+                    <div style="display:flex;gap:10px;font-size:12px;color:#9ca3af;margin:4px 0 10px;">
                         <span>by ${post.profiles?.nickname||'Admin'}</span>
                         <span>${new Date(post.created_at).toLocaleDateString()}</span>
                     </div>
@@ -1162,7 +1114,7 @@
                 const nick = DOM.profileNick.value.trim();
                 const uname = DOM.profileUsername.value.trim();
                 const bio = DOM.profileBio.value.trim();
-                if (!nick) { alert('НИКНЕЙМ ОБЯЗАТЕЛЕН'); return }
+                if (!nick) { alert('Никнейм обязателен'); return }
                 try {
                     const { error } = await window.supabaseClient.from('profiles')
                         .update({ nickname: nick, username: uname, bio })
@@ -1170,7 +1122,7 @@
                     if (error) throw error;
                     state.profile = { ...state.profile, nickname: nick, username: uname, bio };
                     DOM.avatarText.textContent = nick.charAt(0).toUpperCase();
-                    alert('✅ ПРОФИЛЬ СОХРАНЁН');
+                    alert('✅ Профиль сохранён');
                     hideModal(DOM.profileModal);
                 } catch (e) { alert('Ошибка: ' + e.message) }
             });
@@ -1183,7 +1135,7 @@
                 state.xamAccessToken = null;
                 updateAuthUI();
                 hideModal(DOM.profileModal);
-                alert('👋 ВЫХОД ВЫПОЛНЕН');
+                alert('👋 Выход выполнен');
                 window.location.reload();
             });
 
@@ -1193,7 +1145,7 @@
                 loadIdeas(true) });
 
             DOM.fabBtn.addEventListener('click', () => {
-                if (!state.user) { alert('ВОЙДИ ЧЕРЕЗ XAMchat'); return }
+                if (!state.user) { alert('Войди через XAMchat'); return }
                 DOM.ideaTitle.value = '';
                 DOM.ideaDesc.value = '';
                 DOM.ideaHtml.value = '<div>Привет, Xgame!</div>';
@@ -1221,7 +1173,7 @@
 
             DOM.ideaSubmitBtn.addEventListener('click', async () => {
                 const title = DOM.ideaTitle.value.trim();
-                if (!title) { alert('ВВЕДИ НАЗВАНИЕ'); return }
+                if (!title) { alert('Введи название'); return }
                 try {
                     const { error } = await window.supabaseClient.from('ideas').insert({
                         title,
@@ -1234,13 +1186,13 @@
                     if (error) throw error;
                     hideModal(DOM.ideaModal);
                     await loadIdeas(true);
-                    alert('✅ ИДЕЯ ОПУБЛИКОВАНА!');
+                    alert('✅ Идея опубликована!');
                 } catch (e) { alert('Ошибка: ' + e.message) }
             });
 
             DOM.ideasLoader.addEventListener('click', () => loadIdeas(false));
             DOM.postsLoader.addEventListener('click', () => loadPosts(false));
-            DOM.bellBtn.addEventListener('click', () => alert('🔔 УВЕДОМЛЕНИЙ ПОКА НЕТ'));
+            DOM.bellBtn.addEventListener('click', () => alert('🔔 Уведомлений пока нет'));
 
             DOM.profileThemeBtn.addEventListener('click', () => {
                 const nt = state.theme === 'dark' ? 'light' : 'dark';
@@ -1253,7 +1205,7 @@
             document.addEventListener('click', async (e) => {
                 const rb = e.target.closest('[data-reaction]');
                 if (rb) {
-                    if (!state.user) { alert('ВОЙДИ'); return }
+                    if (!state.user) { alert('Войди'); return }
                     const type = rb.dataset.reaction,
                         id = rb.dataset.id,
                         target = rb.dataset.target;
@@ -1274,7 +1226,7 @@
                 if (rp) {
                     const id = rp.dataset.id,
                         target = rp.dataset.target;
-                    const reason = prompt('ПРИЧИНА ЖАЛОБЫ:');
+                    const reason = prompt('Причина жалобы:');
                     if (!reason) return;
                     try {
                         await window.supabaseClient.from('reports').insert({
@@ -1283,7 +1235,7 @@
                             user_id: state.supabaseUser?.id || '00000000-0000-0000-0000-000000000000',
                             reason
                         });
-                        alert('🚩 ЖАЛОБА ОТПРАВЛЕНА');
+                        alert('🚩 Жалоба отправлена');
                     } catch (e) { console.error(e) }
                 }
                 const sb = e.target.closest('[data-toggle-sandbox]');
@@ -1325,9 +1277,9 @@
                     initApp();
                 };
                 s.onerror = () => {
-                    alert('❌ НЕ УДАЛОСЬ ЗАГРУЗИТЬ SUPABASE. ПРОВЕРЬ ИНТЕРНЕТ.');
+                    alert('❌ Не удалось загрузить Supabase. Проверь интернет.');
                     document.querySelector('#ideasContainer').innerHTML =
-                        '<div class="glass" style="padding:30px;text-align:center;"><p>❌ ОШИБКА ПОДКЛЮЧЕНИЯ К SUPABASE</p><p style="font-size:13px;color:#666;">ПРОВЕРЬ ИНТЕРНЕТ ИЛИ КЛЮЧИ</p></div>';
+                        '<div class="glass" style="padding:30px;text-align:center;"><p>❌ Ошибка подключения к Supabase</p><p style="font-size:13px;color:#6b7280;">Проверь интернет или ключи</p></div>';
                 };
                 document.head.appendChild(s);
             }
