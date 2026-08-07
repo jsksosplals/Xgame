@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Agent IDE · Production</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 20% 30%, #1a1e2f, #0b0d18);
+            color: #eef2ff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        /* ===== GLASS CONTAINER ===== */
+        .glass-container {
+            width: 100%;
+            max-width: 1440px;
+            height: 100%;
+            max-height: 900px;
+            background: rgba(20, 25, 45, 0.45);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 48px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            padding: 8px 16px 16px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #a5b4fc, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            flex: 1;
+            min-width: 140px;
+            letter-spacing: -0.3px;
+        }
+
+        .header button {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #eef2ff;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .header button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .header button.agent-on {
+            background: rgba(34, 197, 94, 0.25);
+            border-color: #22c55e;
+            color: #86efac;
+        }
+
+        .header button.agent-off {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            display: flex;
+            flex: 1;
+            gap: 16px;
+            min-height: 0;
+            padding-top: 12px;
+        }
+
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        /* ===== EDITOR TABS ===== */
+        .editor-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px 0 16px;
+            background: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 40px 40px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.06);
+            color: #eef2ff;
+            box-shadow: inset 0 -2px 0 #818cf8;
+        }
+
+        .tab:hover {
+            color: #eef2ff;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        .CodeMirror {
+            height: 100% !important;
+            font-size: 13px !important;
+            background: transparent !important;
+        }
+
+        .CodeMirror-gutters {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+        }
+
+        /* ===== CHAT ===== */
+        .chat-section {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            height: 180px;
+            flex-shrink: 0;
+            margin-top: 12px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding-right: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 20px;
+        }
+
+        .message {
+            padding: 10px 16px;
+            border-radius: 24px;
+            font-size: 13px;
+            max-width: 80%;
+            line-height: 1.5;
+            word-wrap: break-word;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: rgba(129, 140, 248, 0.25);
+            border: 1px solid rgba(129, 140, 248, 0.2);
+            align-self: flex-end;
+            color: #eef2ff;
+        }
+
+        .message.ai {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            align-self: flex-start;
+            color: #eef2ff;
+        }
+
+        .message.system {
+            background: rgba(255, 255, 255, 0.02);
+            color: #94a3b8;
+            text-align: center;
+            font-size: 12px;
+            align-self: center;
+            max-width: 100%;
+            border: none;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input-group input {
+            flex: 1;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 60px;
+            color: #eef2ff;
+            font-size: 13px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .chat-input-group input:focus {
+            border-color: #818cf8;
+        }
+
+        .chat-input-group input::placeholder {
+            color: #64748b;
+        }
+
+        .chat-input-group button {
+            background: rgba(129, 140, 248, 0.2);
+            border: 1px solid rgba(129, 140, 248, 0.2);
+            color: #eef2ff;
+            padding: 10px 22px;
+            border-radius: 60px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .chat-input-group button:hover {
+            background: rgba(129, 140, 248, 0.35);
+        }
+
+        .chat-input-group button:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            margin-left: 8px;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #818cf8;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== PREVIEW FAB ===== */
+        .preview-fab {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(129, 140, 248, 0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(129, 140, 248, 0.25);
+            color: #eef2ff;
+            width: 56px;
+            height: 56px;
+            border-radius: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .preview-fab:hover {
+            transform: scale(1.08);
+            background: rgba(129, 140, 248, 0.25);
+        }
+
+        /* ===== PREVIEW OVERLAY ===== */
+        .preview-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .preview-overlay.active {
+            display: flex;
+        }
+
+        .preview-window {
+            background: rgba(20, 25, 45, 0.95);
+            backdrop-filter: blur(24px);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+        }
+
+        .preview-header span {
+            font-weight: 500;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .preview-close {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #eef2ff;
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-close:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .preview-body {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 0 0 40px 40px;
+            overflow: hidden;
+        }
+
+        .preview-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(20, 25, 45, 0.8);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            padding: 28px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-content h2 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 18px;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            color: #eef2ff;
+            font-size: 13px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .modal-content input:focus,
+        .modal-content textarea:focus {
+            border-color: #818cf8;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 60px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-buttons .confirm {
+            background: #818cf8;
+            color: #0b0d18;
+        }
+
+        .modal-buttons .cancel {
+            background: rgba(255, 255, 255, 0.06);
+            color: #eef2ff;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .main {
+                flex-direction: column;
+            }
+            .glass-container {
+                max-height: none;
+                border-radius: 32px;
+                padding: 14px;
+            }
+            .preview-fab {
+                bottom: 16px;
+                right: 16px;
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+            .preview-window {
+                height: 80vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            .glass-container {
+                border-radius: 24px;
+                padding: 12px;
+            }
+            .header h1 {
+                font-size: 17px;
+            }
+            .header button {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+            .chat-section {
+                height: 140px;
+            }
+            .preview-fab {
+                bottom: 12px;
+                right: 12px;
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            .preview-window {
+                height: 80vh;
+                border-radius: 24px;
+            }
+            .preview-header {
+                padding: 12px 16px;
+            }
+            .preview-body {
+                border-radius: 0 0 24px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== APP CONTAINER ===== -->
+    <div class="glass-container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>🧊 AI Agent IDE</h1>
+            <button onclick="updatePreview()">▶ Обновить</button>
+            <button id="agentToggle" class="agent-on" onclick="toggleAgent()">🤖 Агент: Вкл</button>
+            <button class="secondary" onclick="openSaveModal()">💾 Сохранить</button>
+            <button class="secondary" onclick="exportProject()">📥 Экспорт</button>
+            <button class="secondary" onclick="openLoadModal()">📤 Загрузить</button>
+        </div>
+
+        <!-- EDITOR -->
+        <div class="main">
+            <div class="editor-section">
+                <div class="editor-tabs">
+                    <button class="tab active" onclick="switchTab('html')">HTML</button>
+                    <button class="tab" onclick="switchTab('css')">CSS</button>
+                    <button class="tab" onclick="switchTab('js')">JavaScript</button>
+                </div>
+                <div class="editor-container">
+                    <textarea id="htmlEditor"></textarea>
+                    <textarea id="cssEditor" style="display:none;"></textarea>
+                    <textarea id="jsEditor" style="display:none;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAT -->
+        <div class="chat-section">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-group">
+                <input type="text" id="chatInput" placeholder="Скажи что-то ИИ..." onkeypress="if(event.key==='Enter') sendMessage()" />
+                <button id="sendBtn" onclick="sendMessage()">Отправить</button>
+                <div class="loading" id="chatLoading"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <!-- PREVIEW BUTTON -->
+        <button class="preview-fab" onclick="openPreviewModal()">🔍</button>
+    </div>
+
+    <!-- ===== PREVIEW OVERLAY ===== -->
+    <div class="preview-overlay" id="previewOverlay">
+        <div class="preview-window">
+            <div class="preview-header">
+                <span>🔍 Preview</span>
+                <button class="preview-close" onclick="closePreviewModal()">✕</button>
+            </div>
+            <div class="preview-body">
+                <iframe id="previewIframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <h2>💾 Сохранить проект</h2>
+            <input type="text" id="projectName" placeholder="Название" value="Мой проект" />
+            <textarea id="projectDesc" placeholder="Описание" rows="2"></textarea>
+            <div class="modal-buttons">
+                <button class="confirm" onclick="saveProject()">Сохранить</button>
+                <button class="cancel" onclick="closeModal('saveModal')">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="loadModal">
+        <div class="modal-content">
+            <h2>📤 Загрузить проект (JSON)</h2>
+            <textarea id="jsonInput" rows="5" placeholder='{"code":{"html":"...","css":"...","js":"..."}}'></textarea>
+            <div class="modal-buttons">
+                <button class="confirm" onclick="loadProject()">Загрузить</button>
+                <button class="cancel" onclick="closeModal('loadModal')">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
+
+    <script>
+        /**
+         * =============================================================
+         *  CONFIG
+         * =============================================================
+         */
+        const SUPABASE_URL = 'https://mpganamwcjxvnmqzqdi.supabase.co';
+        const SUPABASE_ANON_KEY =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZ2FuYW13Y2p4dm5tcXpxZHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NzgzMzYsImV4cCI6MjEwMTU1NDMzNn0.MWsBCuaJ8ON8Nf5D8F-U_AA8oRraf4DdIGriNHucj4A';
+
+        /**
+         * =============================================================
+         *  STATE
+         * =============================================================
+         */
+        let supabaseClient = null;
+        let apiKey = '';
+        let agentEnabled = localStorage.getItem('agentEnabled') !== 'false';
+
+        /**
+         * =============================================================
+         *  CODEMIRROR
+         * =============================================================
+         */
+        const editors = {
+            html: CodeMirror.fromTextArea(document.getElementById('htmlEditor'), {
+                mode: 'htmlmixed',
+                theme: 'dracula',
+                lineNumbers: true,
+                autoCloseTags: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                viewportMargin: Infinity,
+            }),
+            css: CodeMirror.fromTextArea(document.getElementById('cssEditor'), {
+                mode: 'css',
+                theme: 'dracula',
+                lineNumbers: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                viewportMargin: Infinity,
+            }),
+            js: CodeMirror.fromTextArea(document.getElementById('jsEditor'), {
+                mode: 'javascript',
+                theme: 'dracula',
+                lineNumbers: true,
+                matchBrackets: true,
+                indentUnit: 2,
+                viewportMargin: Infinity,
+            })
+        };
+
+        /**
+         * =============================================================
+         *  HELPERS
+         * =============================================================
+         */
+        function getCode() {
+            return {
+                html: editors.html.getValue(),
+                css: editors.css.getValue(),
+                js: editors.js.getValue()
+            };
+        }
+
+        function setCode(code) {
+            try {
+                if (code.html !== undefined) editors.html.setValue(code.html);
+                if (code.css !== undefined) editors.css.setValue(code.css);
+                if (code.js !== undefined) editors.js.setValue(code.js);
+                updatePreview();
+                autoSave();
+            } catch (error) {
+                console.error('[setCode] Ошибка:', error);
+                addSystemMessage('❌ Ошибка применения кода: ' + error.message);
+            }
+        }
+
+        function autoSave() {
+            try {
+                localStorage.setItem('ideaCode', JSON.stringify(getCode()));
+            } catch (error) {
+                console.warn('[autoSave] Ошибка записи в localStorage:', error);
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const stored = localStorage.getItem('ideaCode');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.html) editors.html.setValue(data.html);
+                    if (data.css) editors.css.setValue(data.css);
+                    if (data.js) editors.js.setValue(data.js);
+                } else {
+                    editors.html.setValue('<h1>🧊 Привет</h1><p>Скажи ИИ, что изменить</p>');
+                }
+                updatePreview();
+            } catch (error) {
+                console.error('[loadFromStorage] Ошибка:', error);
+                editors.html.setValue('<h1>Ошибка загрузки</h1><p>Попробуй обновить страницу</p>');
+                updatePreview();
+            }
+        }
+
+        function switchTab(tab) {
+            try {
+                Object.keys(editors).forEach(k => {
+                    editors[k].getWrapperElement().style.display = 'none';
+                });
+                editors[tab].getWrapperElement().style.display = 'block';
+                editors[tab].refresh();
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                event.target.classList.add('active');
+            } catch (error) {
+                console.error('[switchTab] Ошибка:', error);
+            }
+        }
+
+        /**
+         * =============================================================
+         *  PREVIEW
+         * =============================================================
+         */
+        function openPreviewModal() {
+            document.getElementById('previewOverlay').classList.add('active');
+            updatePreview();
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewOverlay').classList.remove('active');
+        }
+
+        function updatePreview() {
+            try {
+                const c = getCode();
+                const full = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <style>${c.css}</style>
+                </head>
+                <body>
+                    ${c.html}
+                    <script>${c.js}<\/script>
+                </body>
+                </html>
+            `;
+                document.getElementById('previewIframe').srcdoc = full;
+            } catch (error) {
+                console.error('[updatePreview] Ошибка:', error);
+                document.getElementById('previewIframe').srcdoc = `<h1>Ошибка превью</h1><p>${error.message}</p>`;
+            }
+        }
+
+        /**
+         * =============================================================
+         *  SUPABASE
+         * =============================================================
+         */
+        async function initSupabase() {
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                addSystemMessage('✅ Supabase подключена');
+
+                // проверка доступа к таблице messages
+                const { error } = await supabaseClient.from('messages').select('count', { count: 'exact' });
+                if (error) {
+                    addSystemMessage('⚠️ Ошибка доступа к messages: ' + error.message);
+                } else {
+                    addSystemMessage('📊 Таблица messages доступна');
+                    await loadMessagesFromSupabase();
+                }
+
+                await loadDeepSeekKey();
+            } catch (error) {
+                addSystemMessage('❌ Ошибка Supabase: ' + error.message);
+                console.error('[initSupabase]', error);
+            }
+        }
+
+        async function loadDeepSeekKey() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('secrets')
+                    .select('value')
+                    .eq('key', 'DEEPSEEK_API_KEY')
+                    .single();
+
+                if (error) {
+                    addSystemMessage('⚠️ Ошибка загрузки ключа: ' + error.message);
+                    return;
+                }
+
+                if (data?.value) {
+                    apiKey = data.value;
+                    addSystemMessage('✅ DeepSeek API ключ загружен');
+                } else {
+                    addSystemMessage('⚠️ Ключ DEEPSEEK_API_KEY не найден');
+                }
+            } catch (error) {
+                addSystemMessage('❌ Ошибка загрузки ключа: ' + error.message);
+                console.error('[loadDeepSeekKey]', error);
+            }
+        }
+
+        async function saveMessageToSupabase(role, content) {
+            if (!supabaseClient) return;
+            try {
+                await supabaseClient.from('messages').insert([{
+                    role,
+                    content,
+                    created_at: new Date().toISOString()
+                }]);
+            } catch (error) {
+                console.error('[saveMessageToSupabase]', error);
+            }
+        }
+
+        async function loadMessagesFromSupabase() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .order('created_at', { ascending: true })
+                    .limit(50);
+
+                if (error) {
+                    console.warn('[loadMessagesFromSupabase]', error);
+                    return;
+                }
+
+                if (data) {
+                    data.forEach(msg => {
+                        addMessage(msg.content, msg.role === 'user' ? 'user' : 'ai');
+                    });
+                }
+            } catch (error) {
+                console.error('[loadMessagesFromSupabase]', error);
+            }
+        }
+
+        /**
+         * =============================================================
+         *  CHAT
+         * =============================================================
+         */
+        function addMessage(text, sender) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'message ' + sender;
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'message system';
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        /**
+         * =============================================================
+         *  AI AGENT
+         * =============================================================
+         */
+        function toggleAgent() {
+            agentEnabled = !agentEnabled;
+            localStorage.setItem('agentEnabled', agentEnabled);
+            const btn = document.getElementById('agentToggle');
+            if (agentEnabled) {
+                btn.textContent = '🤖 Агент: Вкл';
+                btn.className = 'agent-on';
+                addSystemMessage('✅ Агент включён');
+            } else {
+                btn.textContent = '🤖 Агент: Выкл';
+                btn.className = 'agent-off';
+                addSystemMessage('⛔ Агент выключен');
+            }
+        }
+
+        /**
+         * =============================================================
+         *  SEND MESSAGE
+         * =============================================================
+         */
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            if (!apiKey) {
+                addSystemMessage('⚠️ DeepSeek API ключ не загружен');
+                return;
+            }
+
+            addMessage(text, 'user');
+            await saveMessageToSupabase('user', text);
+            input.value = '';
+
+            const btn = document.getElementById('sendBtn');
+            const loading = document.getElementById('chatLoading');
+            btn.disabled = true;
+            loading.classList.add('active');
+
+            try {
+                const code = getCode();
+                const systemContent = agentEnabled ?
+                    `Ты — AI-агент в IDE. Меняй код если просят. Отвечай JSON с ключами html, css, js. Если не просят код — отвечай текстом.
+                Сейчас код: HTML: ${code.html} CSS: ${code.css} JS: ${code.js}
+                Запрос: ${text}` :
+                    `Ты — AI-помощник. Отвечай только текстом. НЕ меняй код. Запрос: ${text}`;
+
+                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [{ role: 'system', content: systemContent }],
+                        temperature: 0.5,
+                        max_tokens: 2000
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.choices && data.choices[0]) {
+                    const reply = data.choices[0].message.content;
+
+                    // agent mode: попытка применить JSON-код
+                    if (agentEnabled) {
+                        try {
+                            const match = reply.match(/\{[\s\S]*\}/);
+                            if (match) {
+                                const parsed = JSON.parse(match[0]);
+                                if (parsed.html !== undefined || parsed.css !== undefined || parsed.js !== undefined) {
+                                    setCode({
+                                        html: parsed.html || code.html,
+                                        css: parsed.css || code.css,
+                                        js: parsed.js || code.js
+                                    });
+                                    addSystemMessage('✅ Код обновлён');
+                                    await saveMessageToSupabase('ai', '✅ Код обновлён');
+                                    return;
+                                }
+                            }
+                        } catch (_) { /* не JSON — просто текст */ }
+                    }
+
+                    addMessage(reply, 'ai');
+                    await saveMessageToSupabase('ai', reply);
+                } else {
+                    throw new Error('Некорректный ответ от DeepSeek');
+                }
+            } catch (error) {
+                addSystemMessage('❌ Ошибка: ' + error.message);
+                console.error('[sendMessage]', error);
+            }
+
+            btn.disabled = false;
+            loading.classList.remove('active');
+        }
+
+        /**
+         * =============================================================
+         *  SAVE / EXPORT / LOAD
+         * =============================================================
+         */
+        function openSaveModal() {
+            try {
+                const saved = localStorage.getItem('ideaSaved');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    document.getElementById('projectName').value = data.name || 'Мой проект';
+                    document.getElementById('projectDesc').value = data.description || '';
+                }
+                document.getElementById('saveModal').classList.add('active');
+            } catch (error) {
+                console.error('[openSaveModal]', error);
+            }
+        }
+
+        function saveProject() {
+            try {
+                const name = document.getElementById('projectName').value || 'project';
+                const desc = document.getElementById('projectDesc').value || '';
+                const project = {
+                    name,
+                    description: desc,
+                    code: getCode(),
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem('ideaSaved', JSON.stringify(project));
+                addSystemMessage('✅ Проект сохранён');
+                closeModal('saveModal');
+            } catch (error) {
+                addSystemMessage('❌ Ошибка сохранения: ' + error.message);
+                console.error('[saveProject]', error);
+            }
+        }
+
+        function exportProject() {
+            try {
+                const name = document.getElementById('projectName').value || 'project';
+                const desc = document.getElementById('projectDesc').value || '';
+                const json = JSON.stringify({ name, description: desc, code: getCode() }, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = name + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                addSystemMessage('❌ Ошибка экспорта: ' + error.message);
+                console.error('[exportProject]', error);
+            }
+        }
+
+        function openLoadModal() {
+            document.getElementById('loadModal').classList.add('active');
+        }
+
+        function loadProject() {
+            try {
+                const json = JSON.parse(document.getElementById('jsonInput').value);
+                if (json.code) {
+                    setCode(json.code);
+                    addSystemMessage('✅ Проект загружен');
+                    closeModal('loadModal');
+                } else {
+                    alert('Неверный формат: нужен ключ "code"');
+                }
+            } catch (error) {
+                alert('Ошибка JSON: ' + error.message);
+                console.error('[loadProject]', error);
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        /**
+         * =============================================================
+         *  INIT
+         * =============================================================
+         */
+        loadFromStorage();
+
+        // восстановление состояния агента
+        const btn = document.getElementById('agentToggle');
+        if (agentEnabled) {
+            btn.textContent = '🤖 Агент: Вкл';
+            btn.className = 'agent-on';
+        } else {
+            btn.textContent = '🤖 Агент: Выкл';
+            btn.className = 'agent-off';
+        }
+
+        addSystemMessage('🧊 AI Agent IDE загружена');
+        initSupabase();
+    </script>
+</body>
+</html>
